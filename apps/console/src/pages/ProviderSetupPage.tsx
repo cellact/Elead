@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { allocateIdentity } from '@/shared/identity/allocateIdentity'
 import { Page } from '@/shared/layout/Page/Page'
 import { isValidationError } from '@/shared/lib/errors'
+import { minVisibleMs, waitRemaining } from '@/shared/lib/waitRemaining'
 import { useProviderStudio } from '@/shared/provider/useProviderStudio'
 import { requireDomain } from '@/shared/provider/validate'
 import { Button } from '@/shared/ui/Button/Button'
@@ -17,8 +18,16 @@ import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
 import { Text } from '@/shared/ui/Text/Text'
 import { textSize, textTone } from '@/shared/ui/Text/textTokens'
+import { WorkingStage } from '@/shared/ui/WorkingStage/WorkingStage'
 import { actionVariant } from '@/shared/ui/action/action'
 import styles from '@/pages/ProviderSetupPage.module.css'
+
+const setupWork = {
+  domain: 'domain',
+  inbox: 'inbox',
+} as const
+
+type SetupWork = (typeof setupWork)[keyof typeof setupWork]
 
 const steps = [
   {
@@ -42,7 +51,7 @@ export function ProviderSetupPage() {
   const { account, saveInbox, finishSetup, signOut } = useProviderStudio()
   const [domain, setDomain] = useState(account.domain ?? '')
   const [domainError, setDomainError] = useState<string | undefined>()
-  const [isAllotting, setAllotting] = useState(false)
+  const [work, setWork] = useState<SetupWork | null>(null)
 
   const inbox = account.inboxIdentity
 
@@ -50,11 +59,10 @@ export function ProviderSetupPage() {
     event.preventDefault()
     setDomainError(undefined)
 
+    let validDomain: string
+
     try {
-      const validDomain = requireDomain(domain)
-      setAllotting(true)
-      const inboxIdentity = await allocateIdentity('inbox')
-      saveInbox(validDomain, inboxIdentity)
+      validDomain = requireDomain(domain)
     } catch (error) {
       if (isValidationError(error)) {
         setDomainError(error.fieldErrors.domain)
@@ -62,24 +70,32 @@ export function ProviderSetupPage() {
       }
 
       throw error
-    } finally {
-      setAllotting(false)
     }
+
+    const domainStartedAt = Date.now()
+    setWork(setupWork.domain)
+    await waitRemaining(domainStartedAt, minVisibleMs)
+
+    const inboxStartedAt = Date.now()
+    setWork(setupWork.inbox)
+    const inboxIdentity = await allocateIdentity('inbox')
+    await waitRemaining(inboxStartedAt, minVisibleMs)
+    saveInbox(validDomain, inboxIdentity)
   }
 
-  return (
-    <Page>
-      <Cluster>
-        <Button variant={actionVariant.ghost} onClick={signOut}>
-          Log out
-        </Button>
-      </Cluster>
-
-      {inbox && account.domain ? (
+  if (inbox && account.domain) {
+    return (
+      <Page>
+        <Cluster>
+          <Button variant={actionVariant.ghost} onClick={signOut}>
+            Log out
+          </Button>
+        </Cluster>
         <Stack gap={stackGap.md}>
           <Eyebrow>02 / Inbox</Eyebrow>
           <Heading level={1}>
-            Activate your identity to receive leads in <RainbowText>Arnacon</RainbowText>.
+            Activate your identity to receive leads in{' '}
+            <RainbowText>Arnacon</RainbowText>.
           </Heading>
           <Text size={textSize.lg} tone={textTone.mute}>
             Your domain is {account.domain}.elead.eth. This identity is the
@@ -110,44 +126,87 @@ export function ProviderSetupPage() {
           </div>
           <Button onClick={finishSetup}>Enter the console</Button>
         </Stack>
-      ) : (
-        <Stack gap={stackGap.md}>
-          <Eyebrow>01 / Domain</Eyebrow>
-          <Heading level={1}>
-            Choose and purchase your <RainbowText>domain</RainbowText>.
-          </Heading>
-          <Text size={textSize.lg} tone={textTone.mute}>
-            This name is yours on Elead. After you purchase it, you get an
-            inbox identity to activate in Arnacon.
-          </Text>
-          <Card>
-            <form onSubmit={onPurchaseDomain} noValidate>
-              <Stack gap={stackGap.md}>
-                <Field
-                  label="Domain"
-                  htmlFor="provider-domain"
-                  error={domainError}
-                >
-                  <Input
-                    id="provider-domain"
-                    name="domain"
-                    placeholder="yourstudio"
-                    value={domain}
-                    hasError={Boolean(domainError)}
-                    onChange={(event) => setDomain(event.target.value)}
-                  />
-                </Field>
-                <Text tone={textTone.mute}>
-                  You will receive {domain.trim() || 'yourstudio'}.elead.eth
-                </Text>
-                <Button type="submit" disabled={isAllotting} aria-busy={isAllotting}>
-                  {isAllotting ? 'Purchasing…' : 'Purchase domain'}
-                </Button>
-              </Stack>
-            </form>
-          </Card>
-        </Stack>
-      )}
+      </Page>
+    )
+  }
+
+  if (work === setupWork.domain) {
+    const purchased = domain.trim() || 'yourstudio'
+
+    return (
+      <Page width="narrow">
+        <WorkingStage
+          label="Purchasing your domain"
+          eyebrow="01 / Domain"
+          heading={
+            <>
+              Purchasing your <RainbowText>domain</RainbowText>.
+            </>
+          }
+          body={`Claiming ${purchased}.elead.eth. Next you get an inbox identity for client leads.`}
+        />
+      </Page>
+    )
+  }
+
+  if (work === setupWork.inbox) {
+    return (
+      <Page width="narrow">
+        <WorkingStage
+          label="Allotting your inbox"
+          eyebrow="02 / Inbox"
+          heading={
+            <>
+              Allotting your <RainbowText>inbox</RainbowText>.
+            </>
+          }
+          body="Preparing the console identity. Next you will get a QR code to scan in Arnacon."
+        />
+      </Page>
+    )
+  }
+
+  return (
+    <Page>
+      <Cluster>
+        <Button variant={actionVariant.ghost} onClick={signOut}>
+          Log out
+        </Button>
+      </Cluster>
+      <Stack gap={stackGap.md}>
+        <Eyebrow>01 / Domain</Eyebrow>
+        <Heading level={1}>
+          Choose and purchase your <RainbowText>domain</RainbowText>.
+        </Heading>
+        <Text size={textSize.lg} tone={textTone.mute}>
+          This name is yours on Elead. After you purchase it, you get an
+          inbox identity to activate in Arnacon.
+        </Text>
+        <Card>
+          <form onSubmit={onPurchaseDomain} noValidate>
+            <Stack gap={stackGap.md}>
+              <Field
+                label="Domain"
+                htmlFor="provider-domain"
+                error={domainError}
+              >
+                <Input
+                  id="provider-domain"
+                  name="domain"
+                  placeholder="yourstudio"
+                  value={domain}
+                  hasError={Boolean(domainError)}
+                  onChange={(event) => setDomain(event.target.value)}
+                />
+              </Field>
+              <Text tone={textTone.mute}>
+                You will receive {domain.trim() || 'yourstudio'}.elead.eth
+              </Text>
+              <Button type="submit">Purchase domain</Button>
+            </Stack>
+          </form>
+        </Card>
+      </Stack>
     </Page>
   )
 }

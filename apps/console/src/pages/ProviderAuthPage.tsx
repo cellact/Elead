@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Page } from '@/shared/layout/Page/Page'
+import { minVisibleMs, waitRemaining } from '@/shared/lib/waitRemaining'
 import { Button } from '@/shared/ui/Button/Button'
 import { Card } from '@/shared/ui/Card/Card'
 import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
@@ -11,6 +12,7 @@ import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
 import { Text } from '@/shared/ui/Text/Text'
 import { textSize, textTone } from '@/shared/ui/Text/textTokens'
+import { WorkingStage } from '@/shared/ui/WorkingStage/WorkingStage'
 import { actionVariant } from '@/shared/ui/action/action'
 import styles from '@/pages/ProviderAuthPage.module.css'
 
@@ -21,6 +23,29 @@ const authMode = {
 
 type AuthMode = (typeof authMode)[keyof typeof authMode]
 
+const workingCopy = {
+  [authMode.signIn]: {
+    label: 'Signing in',
+    eyebrow: '01 / Account',
+    heading: (
+      <>
+        Opening your <RainbowText>console</RainbowText>.
+      </>
+    ),
+    body: 'Checking this studio. Next you buy a domain and activate an inbox if you have not already.',
+  },
+  [authMode.register]: {
+    label: 'Creating your account',
+    eyebrow: '01 / Account',
+    heading: (
+      <>
+        Creating your <RainbowText>account</RainbowText>.
+      </>
+    ),
+    body: 'Registering this studio. Next you buy a domain and activate an inbox.',
+  },
+} as const
+
 type ProviderAuthPageProps = {
   onContinue: () => void
 }
@@ -30,12 +55,31 @@ export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [workingMode, setWorkingMode] = useState<AuthMode | null>(null)
 
   const isRegister = mode === authMode.register
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const startedAt = Date.now()
+    setWorkingMode(mode)
+    await waitRemaining(startedAt, minVisibleMs)
     onContinue()
+  }
+
+  if (workingMode) {
+    const copy = workingCopy[workingMode]
+
+    return (
+      <Page width="narrow">
+        <WorkingStage
+          label={copy.label}
+          eyebrow={copy.eyebrow}
+          heading={copy.heading}
+          body={copy.body}
+        />
+      </Page>
+    )
   }
 
   return (

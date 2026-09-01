@@ -3,14 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { routes } from '@/config/routes'
 import { allocateIdentity } from '@/shared/identity/allocateIdentity'
 import { Page } from '@/shared/layout/Page/Page'
-import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
-import { Heading } from '@/shared/ui/Heading/Heading'
+import { minVisibleMs, waitRemaining } from '@/shared/lib/waitRemaining'
 import { RainbowText } from '@/shared/ui/RainbowText/RainbowText'
-import { Text } from '@/shared/ui/Text/Text'
-import { textSize, textTone } from '@/shared/ui/Text/textTokens'
-import styles from '@/pages/AllottingPage.module.css'
-
-const minVisibleMs = 900
+import { WorkingStage } from '@/shared/ui/WorkingStage/WorkingStage'
 
 export function AllottingPage() {
   const navigate = useNavigate()
@@ -47,44 +42,16 @@ export function AllottingPage() {
 
   return (
     <Page width="narrow">
-      <div className={styles.stage}>
-        <div
-          className={styles.status}
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-          aria-label="Allotting a private line"
-        >
-          <div className={styles.orbit} aria-hidden="true">
-            <span className={styles.ring} />
-            <span className={styles.ring} />
-            <span className={styles.ring} />
-          </div>
-          <p className={styles.caption}>Working</p>
-        </div>
-        <Eyebrow>01 / Access</Eyebrow>
-        <Heading level={1}>
-          Allotting a <RainbowText>private line</RainbowText>.
-        </Heading>
-        <div className={styles.copy}>
-          <Text size={textSize.lg} tone={textTone.mute}>
-            We are preparing an Elead identity for this lead. Next you will get
-            a QR code to scan in Arnacon. Nothing personal is collected.
-          </Text>
-        </div>
-      </div>
+      <WorkingStage
+        label="Allotting a private line"
+        eyebrow="01 / Access"
+        heading={
+          <>
+            Allotting a <RainbowText>private line</RainbowText>.
+          </>
+        }
+        body="We are preparing an Elead identity for this lead. Next you will get a QR code to scan in Arnacon. Nothing personal is collected."
+      />
     </Page>
   )
-}
-
-function waitRemaining(startedAt: number, minimumMs: number): Promise<void> {
-  const remaining = minimumMs - (Date.now() - startedAt)
-
-  if (remaining <= 0) {
-    return Promise.resolve()
-  }
-
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, remaining)
-  })
 }
