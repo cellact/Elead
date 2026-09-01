@@ -23,7 +23,6 @@ export const userNav: readonly NavItem[] = [
 ]
 
 export const providerNav: readonly NavItem[] = [
-  { to: routes.provider.root, label: 'Studio', end: true },
-  { to: routes.provider.leads, label: 'Leads' },
-  { to: routes.provider.profile, label: 'Profile' },
+  { to: routes.provider.root, label: 'Overview', end: true },
+  { to: routes.provider.manage, label: 'Manage' },
 ]

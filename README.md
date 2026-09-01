@@ -13,6 +13,7 @@ npm run dev
 - Client studio: `/user`
 - Contact / private line: `/user/contact`
 - Provider studio: `/provider`
+- Provider manage: `/provider/manage`
 
 ## Scripts
 

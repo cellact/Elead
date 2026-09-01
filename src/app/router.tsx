@@ -2,10 +2,9 @@ import { Route, Routes } from 'react-router-dom'
 import { NotFoundPage } from '@/app/NotFoundPage'
 import { MarketingLayout } from '@/portals/marketing/MarketingLayout'
 import { HomePage } from '@/portals/marketing/pages/HomePage'
-import { ProviderLayout } from '@/portals/provider/ProviderLayout'
-import { LeadsPage } from '@/portals/provider/pages/LeadsPage'
-import { ProfilePage } from '@/portals/provider/pages/ProfilePage'
-import { ProviderHomePage } from '@/portals/provider/pages/ProviderHomePage'
+import { ProviderGate } from '@/portals/provider/ProviderGate'
+import { ManagePage } from '@/portals/provider/pages/ManagePage'
+import { OverviewPage } from '@/portals/provider/pages/OverviewPage'
 import { UserLayout } from '@/portals/user/UserLayout'
 import { ContactPage } from '@/portals/user/pages/ContactPage'
 import { UserHomePage } from '@/portals/user/pages/UserHomePage'
@@ -22,10 +21,9 @@ export function AppRouter() {
         <Route path="contact" element={<ContactPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route path={routes.provider.root} element={<ProviderLayout />}>
-        <Route index element={<ProviderHomePage />} />
-        <Route path="leads" element={<LeadsPage />} />
-        <Route path="profile" element={<ProfilePage />} />
+      <Route path={routes.provider.root} element={<ProviderGate />}>
+        <Route index element={<OverviewPage />} />
+        <Route path="manage" element={<ManagePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
       <Route element={<MarketingLayout />}>

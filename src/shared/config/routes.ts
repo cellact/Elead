@@ -6,8 +6,7 @@ export const routes = {
   },
   provider: {
     root: '/provider',
-    leads: '/provider/leads',
-    profile: '/provider/profile',
+    manage: '/provider/manage',
   },
 } as const
 
