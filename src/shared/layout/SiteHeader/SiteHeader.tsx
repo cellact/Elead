@@ -18,25 +18,27 @@ export function SiteHeader({ items, portalLabel, trailing }: SiteHeaderProps) {
         <div className={styles.row}>
           <Logo />
           {portalLabel ? <p className={styles.portal}>{portalLabel}</p> : null}
-          <nav className={styles.nav} aria-label="Primary">
-            {items.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  cx(styles.link, isActive && styles.active)
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-            {trailing ? (
-              <NavLink to={trailing.to} className={styles.link}>
-                {trailing.label}
-              </NavLink>
-            ) : null}
-          </nav>
+          {items.length > 0 || trailing ? (
+            <nav className={styles.nav} aria-label="Primary">
+              {items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    cx(styles.link, isActive && styles.active)
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+              {trailing ? (
+                <NavLink to={trailing.to} className={styles.link}>
+                  {trailing.label}
+                </NavLink>
+              ) : null}
+            </nav>
+          ) : null}
         </div>
       </Container>
     </header>

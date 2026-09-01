@@ -1,25 +1,25 @@
 :root {
-  --gradient-rainbow: linear-gradient(
-    90deg,
-    #ff2d55 0%,
-    #ff9500 16%,
-    #ffcc00 33%,
-    #34c759 50%,
-    #007aff 66%,
-    #5856d6 83%,
-    #af52de 100%
-  );
+  --palette-ink: #0a0a09;
+  --palette-paper: #f3f1eb;
+  --palette-white: #fcfcfa;
+  --palette-surface-dark: #111110;
+  --palette-muted-dark: #8e8d88;
+  --palette-muted-light: #696864;
+  --palette-danger: #b42318;
+  --palette-danger-on-dark: #f97066;
 
-  --font-display: 'Instrument Serif', 'Times New Roman', serif;
-  --font-body: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Newsreader', 'Times New Roman', serif;
+  --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-md: 1rem;
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-md: 1.0625rem;
   --text-lg: 1.25rem;
-  --text-xl: clamp(1.5rem, 3vw, 2rem);
-  --text-2xl: clamp(2rem, 5vw, 3.25rem);
-  --text-hero: clamp(3.1rem, 9vw, 7.25rem);
+  --text-xl: clamp(1.4rem, 2vw, 2rem);
+  --text-2xl: clamp(2rem, 4vw, 3.5rem);
+  --text-hero: clamp(2.75rem, 6vw, 5.5rem);
+  --text-display: clamp(3.25rem, 8vw, 8rem);
 
   --leading-tight: 0.92;
   --leading-snug: 1.2;
@@ -32,14 +32,25 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
   --space-7: 3rem;
-  --space-8: 5rem;
-  --space-9: 8rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  --section-space: clamp(4rem, 8vw, 9rem);
 
   --page-max: 72rem;
-  --page-narrow: 40rem;
-  --page-gutter: clamp(1.25rem, 4vw, 3rem);
+  --page-narrow: 38rem;
+  --page-gutter: clamp(1.25rem, 4vw, 4.5rem);
 
   --radius: 0;
   --line: 1px;
+  --touch: 2.75rem;
+
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-micro: 140ms;
+  --duration-ui: 180ms;
+  --duration-panel: 240ms;
+
+  --z-header: 10;
+  --z-overlay: 40;
 }

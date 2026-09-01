@@ -1,11 +1,13 @@
 .control {
   width: 100%;
-  border: var(--line) solid var(--color-ink);
+  min-height: var(--touch);
+  border: var(--line) solid var(--color-line-strong);
   border-radius: var(--radius);
-  background: var(--color-paper);
+  background: var(--color-surface);
   color: var(--color-ink);
-  padding: 0.85rem 1rem;
+  padding: 0.7rem 1rem;
   appearance: none;
+  transition: border-color var(--duration-ui) var(--ease);
 }
 
 .control::placeholder {
@@ -34,6 +36,6 @@
 }
 
 .hasError {
-  border-color: var(--color-ink);
-  box-shadow: inset 3px 0 0 var(--color-ink);
+  border-color: var(--color-danger);
+  box-shadow: inset 3px 0 0 var(--color-danger);
 }

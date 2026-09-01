@@ -41,7 +41,7 @@ export function ManagePage() {
   return (
     <Page>
       <Stack gap={stackGap.md}>
-        <Eyebrow>Manage</Eyebrow>
+        <Eyebrow>02 / Manage</Eyebrow>
         <Heading level={1}>
           Buy more Elead <RainbowText>identities</RainbowText>.
         </Heading>

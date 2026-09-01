@@ -77,7 +77,7 @@ export function ProviderSetupPage() {
 
       {inbox && account.domain ? (
         <Stack gap={stackGap.md}>
-          <Eyebrow>Activate your inbox</Eyebrow>
+          <Eyebrow>02 / Inbox</Eyebrow>
           <Heading level={1}>
             Activate your identity to receive leads in <RainbowText>Arnacon</RainbowText>.
           </Heading>
@@ -98,9 +98,9 @@ export function ProviderSetupPage() {
             </Stack>
             <div className={styles.steps}>
               {steps.map((step) => (
-                <Stack key={step.number} gap={stackGap.sm}>
+                <Stack key={step.number} gap={stackGap.sm} className={styles.step}>
                   <div className={styles.stepHead}>
-                    <p className={styles.stepNumber}>{step.number}</p>
+                    <p className={styles.stepNumber}>{step.number} /</p>
                     <Heading level={3}>{step.title}</Heading>
                   </div>
                   <Text tone={textTone.mute}>{step.copy}</Text>
@@ -112,7 +112,7 @@ export function ProviderSetupPage() {
         </Stack>
       ) : (
         <Stack gap={stackGap.md}>
-          <Eyebrow>First-time setup</Eyebrow>
+          <Eyebrow>01 / Domain</Eyebrow>
           <Heading level={1}>
             Choose and purchase your <RainbowText>domain</RainbowText>.
           </Heading>
@@ -140,7 +140,7 @@ export function ProviderSetupPage() {
                 <Text tone={textTone.mute}>
                   You will receive {domain.trim() || 'yourstudio'}.elead.eth
                 </Text>
-                <Button type="submit" disabled={isAllotting}>
+                <Button type="submit" disabled={isAllotting} aria-busy={isAllotting}>
                   {isAllotting ? 'Purchasing…' : 'Purchase domain'}
                 </Button>
               </Stack>

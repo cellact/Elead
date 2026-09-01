@@ -8,12 +8,23 @@ type HeadingLevel = 1 | 2 | 3
 
 type HeadingProps = {
   level: HeadingLevel
+  display?: boolean
   children: ReactNode
   className?: string
 }
 
-export function Heading({ level, children, className }: HeadingProps) {
-  const shared = cx(styles.heading, headingClass(level), className)
+export function Heading({
+  level,
+  display = false,
+  children,
+  className,
+}: HeadingProps) {
+  const shared = cx(
+    styles.heading,
+    headingClass(level),
+    display && styles.display,
+    className,
+  )
 
   if (level === 1) {
     return <h1 className={shared}>{children}</h1>

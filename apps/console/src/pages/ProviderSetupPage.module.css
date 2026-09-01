@@ -6,22 +6,32 @@
 }
 
 .frame {
-  border: var(--line) solid var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--line) solid var(--color-line-strong);
+  background: var(--color-surface);
   padding: var(--space-5);
   max-width: 20rem;
+  min-height: 16rem;
 }
 
 .ens {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.02em;
   line-height: var(--leading-snug);
 }
 
 .steps {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+}
+
+.step {
+  padding-block: var(--space-4);
+  border-top: var(--line) solid var(--color-line);
 }
 
 .stepHead {
@@ -32,9 +42,10 @@
 
 .stepNumber {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  line-height: 1;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--color-mute);
 }
 

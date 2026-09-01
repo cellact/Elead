@@ -1,23 +1,27 @@
 .hero {
-  padding-block: var(--space-8) var(--space-7);
+  padding-block: var(--section-space) var(--space-8);
 }
 
 .steps {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-6);
+  gap: var(--space-7);
 }
 
 .stepNumber {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-2xl);
-  line-height: 1;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--color-mute);
 }
 
 @media (min-width: 800px) {
   .steps {
     grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+    padding-top: var(--space-2);
+    border-top: var(--line) solid var(--color-line);
   }
 }

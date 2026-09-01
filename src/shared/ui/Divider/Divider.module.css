@@ -7,9 +7,3 @@
 .strong {
   border-top-color: var(--color-ink);
 }
-
-.rainbow {
-  height: 2px;
-  border: 0;
-  background: var(--gradient-rainbow);
-}

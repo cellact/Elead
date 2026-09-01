@@ -27,7 +27,7 @@ export function OverviewPage() {
   return (
     <Page>
       <Stack gap={stackGap.md}>
-        <Eyebrow>Overview</Eyebrow>
+        <Eyebrow>01 / Overview</Eyebrow>
         <Heading level={1}>
           Your Elead <RainbowText>identities</RainbowText>.
         </Heading>
@@ -35,22 +35,28 @@ export function OverviewPage() {
           {domain}.elead.eth · Inbox {inbox.ensName}. Pregenerated lines wait
           for a client to claim one.
         </Text>
+        {account.identitiesPurchased === 0 ? (
+          <Text tone={textTone.mute}>
+            No client lines yet. Purchase identities to allot a private line
+            when someone asks to talk.
+          </Text>
+        ) : null}
       </Stack>
 
       <Grid columns={3}>
         <Card>
           <Eyebrow>Purchased</Eyebrow>
-          <Heading level={2}>{String(account.identitiesPurchased)}</Heading>
+          <Heading level={3}>{String(account.identitiesPurchased)}</Heading>
           <Text tone={textTone.mute}>Pregenerated and ready to allot.</Text>
         </Card>
         <Card>
           <Eyebrow>In use</Eyebrow>
-          <Heading level={2}>{String(account.identitiesClaimed)}</Heading>
+          <Heading level={3}>{String(account.identitiesClaimed)}</Heading>
           <Text tone={textTone.mute}>Claimed by clients for a lead.</Text>
         </Card>
         <Card>
           <Eyebrow>Available</Eyebrow>
-          <Heading level={2}>{String(available)}</Heading>
+          <Heading level={3}>{String(available)}</Heading>
           <Text tone={textTone.mute}>Still waiting to be claimed.</Text>
         </Card>
       </Grid>

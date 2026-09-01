@@ -5,6 +5,7 @@
   letter-spacing: -0.03em;
   line-height: var(--leading-tight);
   color: var(--color-ink);
+  text-wrap: balance;
 }
 
 .level1 {
@@ -18,4 +19,8 @@
 .level3 {
   font-size: var(--text-xl);
   line-height: var(--leading-snug);
+}
+
+.display {
+  font-size: var(--text-display);
 }

@@ -75,7 +75,7 @@ export function ContactPage() {
     <Page>
       <Stack gap={stackGap.md}>
         <Eyebrow>Activate your private line</Eyebrow>
-        <Heading level={2}>
+        <Heading level={1}>
           Open Arnacon on your phone and scan this code.
         </Heading>
         <Text size={textSize.lg} tone={textTone.mute}>
@@ -85,26 +85,28 @@ export function ContactPage() {
       </Stack>
 
       <div className={styles.split}>
-        {identity ? (
-          <Stack gap={stackGap.sm}>
-            <Eyebrow>Your Elead identity</Eyebrow>
-            <p className={styles.ens}>{identity.ensName}</p>
-            <div className={styles.frame}>
+        <Stack gap={stackGap.sm}>
+          <Eyebrow>Your Elead identity</Eyebrow>
+          <p className={styles.ens}>
+            {identity ? identity.ensName : 'Allotting a private line…'}
+          </p>
+          <div className={styles.frame}>
+            {identity ? (
               <QrCode
                 value={identity.activationUrl}
                 label={`Scan to activate ${identity.ensName} in Arnacon`}
               />
-            </div>
-          </Stack>
-        ) : (
-          <Text tone={textTone.mute}>Preparing your private line…</Text>
-        )}
+            ) : (
+              <p className={styles.pending}>Preparing your code…</p>
+            )}
+          </div>
+        </Stack>
 
         <div className={styles.steps}>
           {steps.map((step) => (
-            <Stack key={step.number} gap={stackGap.sm}>
+            <Stack key={step.number} gap={stackGap.sm} className={styles.step}>
               <div className={styles.stepHead}>
-                <p className={styles.stepNumber}>{step.number}</p>
+                <p className={styles.stepNumber}>{step.number} /</p>
                 <Heading level={3}>{step.title}</Heading>
               </div>
               <Text tone={textTone.mute}>{step.copy}</Text>

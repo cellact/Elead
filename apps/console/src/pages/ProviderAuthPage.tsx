@@ -60,9 +60,9 @@ export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
     <Page>
       <div className={styles.split}>
         <Stack gap={stackGap.md}>
-          <Eyebrow>Elead Console</Eyebrow>
+          <Eyebrow>Register or sign in</Eyebrow>
           <Heading level={1}>
-            Set up your console <RainbowText>account</RainbowText>.
+            Set up your <RainbowText>account</RainbowText>.
           </Heading>
           <Text size={textSize.lg} tone={textTone.mute}>
             Register or sign in, then open the console. One path. No client
@@ -70,13 +70,13 @@ export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
           </Text>
           <div className={styles.steps}>
             {steps.map((step) => (
-              <Card key={step.number}>
+              <div key={step.number} className={styles.step}>
                 <div className={styles.stepHead}>
-                  <p className={styles.stepNumber}>{step.number}</p>
+                  <p className={styles.stepNumber}>{step.number} /</p>
                   <Heading level={3}>{step.title}</Heading>
                 </div>
                 <Text tone={textTone.mute}>{step.copy}</Text>
-              </Card>
+              </div>
             ))}
           </div>
         </Stack>

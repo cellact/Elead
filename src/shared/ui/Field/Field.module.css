@@ -14,5 +14,5 @@
 .error {
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--color-ink);
+  color: var(--color-danger);
 }

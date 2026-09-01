@@ -37,7 +37,7 @@ export function HomePage() {
         <Container>
           <Stack gap={stackGap.md}>
             <Eyebrow>Leads, kept private</Eyebrow>
-            <Heading level={1}>
+            <Heading level={1} display>
               Leave a lead.
               <br />
               Remain <RainbowText>anonymous</RainbowText>.
@@ -52,19 +52,17 @@ export function HomePage() {
         </Container>
       </section>
 
-      <Divider tone="rainbow" />
+      <Divider />
 
       <Page>
         <Stack gap={stackGap.md}>
           <Eyebrow>How it works</Eyebrow>
-          <Heading level={2}>
-            Three steps. No personal <RainbowText>details</RainbowText>.
-          </Heading>
+          <Heading level={2}>Three steps. No personal details.</Heading>
         </Stack>
         <div className={styles.steps}>
           {steps.map((step) => (
             <Stack key={step.number} gap={stackGap.sm}>
-              <p className={styles.stepNumber}>{step.number}</p>
+              <p className={styles.stepNumber}>{step.number} /</p>
               <Heading level={3}>{step.title}</Heading>
               <Text tone={textTone.mute}>{step.copy}</Text>
             </Stack>
