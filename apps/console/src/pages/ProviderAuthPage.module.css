@@ -5,34 +5,6 @@
   align-items: start;
 }
 
-.steps {
-  display: flex;
-  flex-direction: column;
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding-block: var(--space-4);
-  border-top: var(--line) solid var(--color-line);
-}
-
-.stepHead {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
-}
-
-.stepNumber {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-mute);
-}
-
 .formActions {
   display: flex;
   flex-wrap: wrap;

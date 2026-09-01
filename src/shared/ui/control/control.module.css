@@ -19,22 +19,6 @@
   cursor: not-allowed;
 }
 
-.textarea {
-  min-height: 8.5rem;
-  resize: vertical;
-}
-
-.select {
-  background-image: linear-gradient(var(--color-ink), var(--color-ink)),
-    linear-gradient(var(--color-ink), var(--color-ink));
-  background-position:
-    calc(100% - 1.1rem) calc(50% - 0.18rem),
-    calc(100% - 0.85rem) calc(50% - 0.18rem);
-  background-size: 0.35rem 1px, 0.35rem 1px;
-  background-repeat: no-repeat;
-  padding-right: 2.25rem;
-}
-
 .hasError {
   border-color: var(--color-danger);
   box-shadow: inset 3px 0 0 var(--color-danger);

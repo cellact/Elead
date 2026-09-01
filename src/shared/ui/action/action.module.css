@@ -83,16 +83,6 @@
   opacity: 0.62;
 }
 
-.accent {
-  background: transparent;
-  color: var(--color-ink);
-}
-
-.accent:hover:not(:disabled) {
-  background: var(--color-ink);
-  color: var(--color-paper);
-}
-
 .fullWidth {
   width: 100%;
   align-self: stretch;

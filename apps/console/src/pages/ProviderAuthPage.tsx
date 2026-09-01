@@ -21,24 +21,6 @@ const authMode = {
 
 type AuthMode = (typeof authMode)[keyof typeof authMode]
 
-// const steps = [
-//   {
-//     number: '01',
-//     title: 'Choose a domain',
-//     copy: 'Purchase a name on Elead. That is the address clients reach you through.',
-//   },
-//   {
-//     number: '02',
-//     title: 'Activate your inbox',
-//     copy: 'Scan a QR code in Arnacon. Every lead arrives on that identity.',
-//   },
-//   {
-//     number: '03',
-//     title: 'Buy client lines',
-//     copy: 'Pregenerated identities wait here until someone asks to talk.',
-//   },
-// ] as const
-
 type ProviderAuthPageProps = {
   onContinue: () => void
 }
@@ -65,20 +47,9 @@ export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
             Set up your <RainbowText>account</RainbowText>.
           </Heading>
           <Text size={textSize.lg} tone={textTone.mute}>
-            Register or sign in. After that you buy a domain, activate an inbox, 
+            Register or sign in. After that you buy a domain, activate an inbox,
             and purchase client lines.
           </Text>
-          {/* <div className={styles.steps}>
-            {steps.map((step) => (
-              <div key={step.number} className={styles.step}>
-                <div className={styles.stepHead}>
-                  <p className={styles.stepNumber}>{step.number} /</p>
-                  <Heading level={3}>{step.title}</Heading>
-                </div>
-                <Text tone={textTone.mute}>{step.copy}</Text>
-              </div>
-            ))}
-          </div> */}
         </Stack>
 
         <Card>

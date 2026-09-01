@@ -6,7 +6,6 @@ export const actionVariant = {
   primary: 'primary',
   secondary: 'secondary',
   ghost: 'ghost',
-  accent: 'accent',
 } as const
 
 export const actionSize = {
