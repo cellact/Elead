@@ -1,0 +1,52 @@
+:root {
+  --color-paper: #ffffff;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #2a2a2a;
+  --color-mute: #5c5c5c;
+  --color-line: #e6e6e6;
+  --color-line-strong: #0a0a0a;
+
+  --gradient-rainbow: linear-gradient(
+    90deg,
+    #ff2d55 0%,
+    #ff9500 16%,
+    #ffcc00 33%,
+    #34c759 50%,
+    #007aff 66%,
+    #5856d6 83%,
+    #af52de 100%
+  );
+
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-body: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.5rem, 3vw, 2rem);
+  --text-2xl: clamp(2rem, 5vw, 3.25rem);
+  --text-hero: clamp(3.1rem, 9vw, 7.25rem);
+
+  --leading-tight: 0.92;
+  --leading-snug: 1.2;
+  --leading-body: 1.55;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 5rem;
+  --space-9: 8rem;
+
+  --page-max: 72rem;
+  --page-narrow: 40rem;
+  --page-gutter: clamp(1.25rem, 4vw, 3rem);
+
+  --radius: 0;
+  --line: 1px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}

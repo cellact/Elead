@@ -1,0 +1,18 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  border: var(--line) solid var(--color-line);
+  background: var(--color-paper);
+  padding: var(--space-5);
+}
+
+.interactive {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 180ms var(--ease);
+}
+
+.interactive:hover {
+  border-color: var(--color-ink);
+}

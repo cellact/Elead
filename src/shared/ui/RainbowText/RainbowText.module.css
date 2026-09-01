@@ -1,0 +1,8 @@
+.rainbow {
+  background-image: var(--gradient-rainbow);
+  background-size: 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-style: italic;
+}

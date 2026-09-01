@@ -1,0 +1,21 @@
+.text {
+  margin: 0;
+  max-width: 38rem;
+}
+
+.md {
+  font-size: var(--text-md);
+}
+
+.lg {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+}
+
+.ink {
+  color: var(--color-ink);
+}
+
+.mute {
+  color: var(--color-mute);
+}

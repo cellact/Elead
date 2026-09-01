@@ -1,0 +1,21 @@
+.heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+}
+
+.level1 {
+  font-size: var(--text-hero);
+}
+
+.level2 {
+  font-size: var(--text-2xl);
+}
+
+.level3 {
+  font-size: var(--text-xl);
+  line-height: var(--leading-snug);
+}

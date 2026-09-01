@@ -1,0 +1,18 @@
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  text-decoration: none;
+  color: var(--color-ink);
+  font-size: 0.95rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.mark {
+  width: 0.55rem;
+  height: 0.55rem;
+  background: var(--gradient-rainbow);
+  flex: 0 0 auto;
+}
