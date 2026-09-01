@@ -47,7 +47,7 @@ export function HomePage() {
               hand over a phone or email that can be stored, shared, or used
               again later.
             </Text>
-            <LinkButton to={routes.contact}>Contact us</LinkButton>
+            <LinkButton to={routes.allotting}>Contact us</LinkButton>
           </Stack>
         </Container>
       </section>

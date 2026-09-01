@@ -24,12 +24,6 @@
   line-height: var(--leading-snug);
 }
 
-.pending {
-  margin: 0;
-  color: var(--color-mute);
-  font-size: var(--text-sm);
-}
-
 .steps {
   display: flex;
   flex-direction: column;

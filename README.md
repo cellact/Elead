@@ -20,6 +20,7 @@ npm run dev:console
 ```
 
 - ExampleProvider home: `/`
+- ExampleProvider allotting: `/allotting`
 - ExampleProvider contact: `/contact`
 - Elead Console: `/`
 - Elead Console manage: `/manage`

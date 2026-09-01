@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { allocateIdentity } from '@/shared/identity/allocateIdentity'
+import { Navigate, useLocation } from 'react-router-dom'
+import { routes } from '@/config/routes'
 import type { ClientIdentity } from '@/shared/identity/types'
 import { Page } from '@/shared/layout/Page/Page'
 import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
@@ -40,41 +40,17 @@ const steps = [
 ] as const
 
 export function ContactPage() {
-  const [identity, setIdentity] = useState<ClientIdentity | null>(null)
-  const [error, setError] = useState<Error | null>(null)
+  const location = useLocation()
+  const identity = readContactIdentity(location.state)
 
-  useEffect(() => {
-    let cancelled = false
-
-    allocateIdentity()
-      .then((next) => {
-        if (!cancelled) {
-          setIdentity(next)
-        }
-      })
-      .catch((cause: unknown) => {
-        if (!cancelled) {
-          setError(
-            cause instanceof Error
-              ? cause
-              : new Error('Could not allot a private line.', { cause }),
-          )
-        }
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  if (error) {
-    throw error
+  if (!identity) {
+    return <Navigate to={routes.allotting} replace />
   }
 
   return (
     <Page>
       <Stack gap={stackGap.md}>
-        <Eyebrow>Activate your private line</Eyebrow>
+        <Eyebrow>01 / Access</Eyebrow>
         <Heading level={1}>
           Open Arnacon on your phone and scan this code.
         </Heading>
@@ -87,18 +63,12 @@ export function ContactPage() {
       <div className={styles.split}>
         <Stack gap={stackGap.sm}>
           <Eyebrow>Your Elead identity</Eyebrow>
-          <p className={styles.ens}>
-            {identity ? identity.ensName : 'Allotting a private line…'}
-          </p>
+          <p className={styles.ens}>{identity.ensName}</p>
           <div className={styles.frame}>
-            {identity ? (
-              <QrCode
-                value={identity.activationUrl}
-                label={`Scan to activate ${identity.ensName} in Arnacon`}
-              />
-            ) : (
-              <p className={styles.pending}>Preparing your code…</p>
-            )}
+            <QrCode
+              value={identity.activationUrl}
+              label={`Scan to activate ${identity.ensName} in Arnacon`}
+            />
           </div>
         </Stack>
 
@@ -116,4 +86,39 @@ export function ContactPage() {
       </div>
     </Page>
   )
+}
+
+function readContactIdentity(state: unknown): ClientIdentity | null {
+  if (state == null) {
+    return null
+  }
+
+  if (typeof state !== 'object' || !('identity' in state)) {
+    throw new Error('Corrupt contact state: identity is missing.')
+  }
+
+  const identity = state.identity
+
+  if (typeof identity !== 'object' || identity === null) {
+    throw new Error('Corrupt contact state: identity.')
+  }
+
+  const ensName =
+    'ensName' in identity && typeof identity.ensName === 'string'
+      ? identity.ensName.trim()
+      : ''
+  const activationUrl =
+    'activationUrl' in identity && typeof identity.activationUrl === 'string'
+      ? identity.activationUrl.trim()
+      : ''
+
+  if (ensName === '') {
+    throw new Error('Corrupt contact state: ensName.')
+  }
+
+  if (activationUrl === '') {
+    throw new Error('Corrupt contact state: activationUrl.')
+  }
+
+  return { ensName, activationUrl }
 }

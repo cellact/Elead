@@ -1,0 +1,77 @@
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  min-height: min(32rem, 62dvh);
+  text-align: center;
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.orbit {
+  position: relative;
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.ring {
+  position: absolute;
+  border: var(--line) solid var(--color-line);
+  border-top-color: var(--color-ink);
+  border-right-color: var(--color-ink);
+}
+
+.ring:nth-child(1) {
+  inset: 0;
+  animation: spin 1.4s linear infinite;
+}
+
+.ring:nth-child(2) {
+  inset: 0.75rem;
+  animation: spin-reverse 2s linear infinite;
+}
+
+.ring:nth-child(3) {
+  inset: 1.5rem;
+  animation: spin 0.85s linear infinite;
+}
+
+.caption {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.copy {
+  max-width: 28rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring {
+    animation: none;
+    border-color: var(--color-line);
+    border-top-color: var(--color-ink);
+  }
+}
