@@ -21,23 +21,23 @@ const authMode = {
 
 type AuthMode = (typeof authMode)[keyof typeof authMode]
 
-const steps = [
-  {
-    number: '01',
-    title: 'Create your provider profile',
-    copy: 'A name and a trade. Clients never see your personal number.',
-  },
-  {
-    number: '02',
-    title: 'Open the console',
-    copy: 'Sign in or register. The console is where you buy and watch identities.',
-  },
-  {
-    number: '03',
-    title: 'Receive private-line leads',
-    copy: 'Clients write from an Elead line. You write back on that line.',
-  },
-] as const
+// const steps = [
+//   {
+//     number: '01',
+//     title: 'Choose a domain',
+//     copy: 'Purchase a name on Elead. That is the address clients reach you through.',
+//   },
+//   {
+//     number: '02',
+//     title: 'Activate your inbox',
+//     copy: 'Scan a QR code in Arnacon. Every lead arrives on that identity.',
+//   },
+//   {
+//     number: '03',
+//     title: 'Buy client lines',
+//     copy: 'Pregenerated identities wait here until someone asks to talk.',
+//   },
+// ] as const
 
 type ProviderAuthPageProps = {
   onContinue: () => void
@@ -65,10 +65,10 @@ export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
             Set up your <RainbowText>account</RainbowText>.
           </Heading>
           <Text size={textSize.lg} tone={textTone.mute}>
-            Register or sign in, then open the console. One path. No client
-            phone book to keep.
+            Register or sign in. After that you buy a domain, activate an inbox, 
+            and purchase client lines.
           </Text>
-          <div className={styles.steps}>
+          {/* <div className={styles.steps}>
             {steps.map((step) => (
               <div key={step.number} className={styles.step}>
                 <div className={styles.stepHead}>
@@ -78,7 +78,7 @@ export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
                 <Text tone={textTone.mute}>{step.copy}</Text>
               </div>
             ))}
-          </div>
+          </div> */}
         </Stack>
 
         <Card>
