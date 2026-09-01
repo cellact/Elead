@@ -1,9 +1,8 @@
 import { env } from '@/shared/lib/env'
-import { routes } from '@/shared/config/routes'
 
 export const site = {
   name: env.appName,
-  tagline: 'Leave a lead. Remain anonymous.',
+  tagline: env.appTagline,
 } as const
 
 export type NavItem = {
@@ -11,18 +10,3 @@ export type NavItem = {
   label: string
   end?: boolean
 }
-
-export const marketingNav: readonly NavItem[] = [
-  { to: routes.user.root, label: 'Clients' },
-  { to: routes.provider.root, label: 'Providers' },
-]
-
-export const userNav: readonly NavItem[] = [
-  { to: routes.user.root, label: 'Studio', end: true },
-  { to: routes.user.contact, label: 'Contact us' },
-]
-
-export const providerNav: readonly NavItem[] = [
-  { to: routes.provider.root, label: 'Overview', end: true },
-  { to: routes.provider.manage, label: 'Manage' },
-]

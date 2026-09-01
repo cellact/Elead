@@ -1,0 +1,10 @@
+@import '../../../src/shared/theme/tokens.css';
+
+:root {
+  --color-paper: #ffffff;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #2a2a2a;
+  --color-mute: #5c5c5c;
+  --color-line: #e6e6e6;
+  --color-line-strong: #0a0a0a;
+}

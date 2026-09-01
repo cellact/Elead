@@ -20,27 +20,7 @@
 }
 
 .meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3);
+  margin: 0;
   color: var(--color-mute);
   font-size: var(--text-sm);
-}
-
-.links {
-  display: flex;
-  gap: var(--space-4);
-}
-
-.link {
-  color: var(--color-ink);
-  text-decoration: none;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: var(--text-xs);
-}
-
-.link:hover {
-  opacity: 0.55;
 }

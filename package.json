@@ -4,10 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "npm run dev:example",
+    "dev:example": "vite --config apps/example/vite.config.ts",
+    "dev:console": "vite --config apps/console/vite.config.ts",
+    "build": "tsc -b && vite build --config apps/example/vite.config.ts && vite build --config apps/console/vite.config.ts",
+    "build:example": "tsc -b apps/example && vite build --config apps/example/vite.config.ts",
+    "build:console": "tsc -b apps/console && vite build --config apps/console/vite.config.ts",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview:example": "vite preview --config apps/example/vite.config.ts",
+    "preview:console": "vite preview --config apps/console/vite.config.ts"
   },
   "dependencies": {
     "qrcode": "^1.5.4",
