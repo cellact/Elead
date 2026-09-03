@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "name": "elead-example",
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build:example",
+  "outputDirectory": "apps/example/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

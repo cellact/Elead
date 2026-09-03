@@ -31,6 +31,9 @@ export default defineConfig({
       '/linkDomain': { target: 'http://127.0.0.1:8080', changeOrigin: true },
       '/setLeadStatus': { target: 'http://127.0.0.1:8080', changeOrigin: true },
       '/ensureSemaphore': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/generateInboxQR': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/inboxes': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/setInboxRouting': { target: 'http://127.0.0.1:8080', changeOrigin: true },
     },
   },
   preview: {

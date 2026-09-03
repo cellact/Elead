@@ -41,11 +41,9 @@ export function QrCode({ value, label }: QrCodeProps) {
       })
       .catch((cause: unknown) => {
         if (!cancelled) {
-          setError(
-            new Error('Could not draw the scan code.', {
-              cause,
-            }),
-          )
+          const detail =
+            cause instanceof Error ? cause.message : 'Could not draw the scan code.'
+          setError(new Error(detail))
         }
       })
 
@@ -55,7 +53,7 @@ export function QrCode({ value, label }: QrCodeProps) {
   }, [value])
 
   if (error) {
-    throw error
+    return <p className={styles.pending}>{error.message}</p>
   }
 
   if (!dataUrl) {

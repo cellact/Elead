@@ -1,4 +1,5 @@
 import { env } from '@/shared/lib/env'
+import { formatUnknownError } from '@/shared/lib/errors'
 import type { EleadIdentity } from '@/shared/identity/types'
 
 export type CreatedLead = {
@@ -35,10 +36,10 @@ async function api<T>(path: string, opts: RequestInit = {}): Promise<T> {
   }
   if (!res.ok) {
     const message =
-      data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
-        ? data.error
+      data && typeof data === 'object' && 'error' in data
+        ? formatUnknownError((data as { error: unknown }).error)
         : text || `HTTP ${res.status}`
-    throw new Error(message)
+    throw new Error(message || `HTTP ${res.status}`)
   }
   return data as T
 }
@@ -169,6 +170,65 @@ export async function listLinkedDomains(sp?: string): Promise<string[]> {
   const query = sp ? `?sp=${encodeURIComponent(sp)}` : ''
   const result = await api<{ domains: { domain: string }[] }>(`/domains${query}`)
   return result.domains.map((row) => row.domain)
+}
+
+export async function generateInboxQR(body: {
+  domain: string
+  inboxName: string
+  timestamp: number
+  signature: string
+}): Promise<{ url: string; label: string; domain: string; fullName: string }> {
+  return api('/generateInboxQR', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export type EleadInbox = {
+  label: string
+  fullName: string
+  status: string
+  createdAt?: string
+}
+
+export type InboxList = {
+  domain: string
+  receiveMode: 'single' | 'group'
+  receiveInbox: string | null
+  inboxes: EleadInbox[]
+}
+
+export async function listInboxes(domain: string): Promise<InboxList> {
+  return api(`/inboxes?domain=${encodeURIComponent(domain)}`)
+}
+
+export async function setInboxRouting(body: {
+  domain: string
+  mode: 'single' | 'group'
+  inboxName?: string
+  timestamp: number
+  signature: string
+}): Promise<InboxList> {
+  return api('/setInboxRouting', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function inboxCreateMessage(
+  domain: string,
+  inboxName: string,
+  timestamp: number,
+): string {
+  return `elead-inbox\n${domain}\n${inboxName}\n${timestamp}`
+}
+
+export function inboxRoutingMessage(
+  domain: string,
+  inboxName: string,
+  timestamp: number,
+): string {
+  return `elead-inbox-routing\n${domain}\n${inboxName}\n${timestamp}`
 }
 
 export async function listCreatedLeads(query: {
