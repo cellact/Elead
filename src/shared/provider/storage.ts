@@ -6,6 +6,10 @@ import {
 
 export const ACCOUNT_STORAGE_KEY = 'elead.provider-account.v1'
 
+function accountKey(wallet: string): string {
+  return `${ACCOUNT_STORAGE_KEY}:${wallet.toLowerCase()}`
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -77,8 +81,9 @@ export function parseProviderAccount(raw: string): ProviderAccount {
   }
 }
 
-export function loadProviderAccount(): ProviderAccount {
-  const raw = window.localStorage.getItem(ACCOUNT_STORAGE_KEY)
+export function loadProviderAccount(wallet: string): ProviderAccount {
+  const key = accountKey(wallet)
+  const raw = window.localStorage.getItem(key)
 
   if (raw === null) {
     return emptyProviderAccount()
@@ -88,12 +93,28 @@ export function loadProviderAccount(): ProviderAccount {
     return parseProviderAccount(raw)
   } catch (error) {
     throw new Error(
-      `Corrupt provider account in localStorage (${ACCOUNT_STORAGE_KEY}). Clear this key and reload.`,
+      `Corrupt provider account in localStorage (${key}). Clear this key and reload.`,
       { cause: error },
     )
   }
 }
 
-export function saveProviderAccount(account: ProviderAccount): void {
-  window.localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account))
+export function saveProviderAccount(
+  wallet: string,
+  account: ProviderAccount,
+): void {
+  window.localStorage.setItem(accountKey(wallet), JSON.stringify(account))
+}
+
+export function clearAllProviderAccounts(): void {
+  const keys: string[] = []
+  for (let i = 0; i < window.localStorage.length; i += 1) {
+    const key = window.localStorage.key(i)
+    if (key && key.startsWith(`${ACCOUNT_STORAGE_KEY}:`)) {
+      keys.push(key)
+    }
+  }
+  for (const key of keys) {
+    window.localStorage.removeItem(key)
+  }
 }

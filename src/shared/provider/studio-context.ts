@@ -4,10 +4,12 @@ import type { ProviderAccount } from '@/shared/provider/types'
 
 export type ProviderStudioValue = {
   isSignedIn: boolean
+  wallet: string | null
   account: ProviderAccount
-  signIn: () => void
+  signIn: (address: string) => void
   signOut: () => void
   saveInbox: (domain: string, inboxIdentity: EleadIdentity) => void
+  chooseDomain: (domain: string) => void
   finishSetup: () => void
   purchaseIdentities: (count: number) => void
 }

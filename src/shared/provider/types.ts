@@ -19,7 +19,7 @@ export function emptyProviderAccount(): ProviderAccount {
 }
 
 export function isSetupComplete(account: ProviderAccount): boolean {
-  return account.hasFinishedSetup
+  return typeof account.domain === 'string' && account.domain.length > 0
 }
 
 export function identitiesAvailable(account: ProviderAccount): number {

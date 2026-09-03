@@ -1,82 +1,197 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import {
+  Web3Provider,
+  type ExternalProvider,
+  type JsonRpcSigner,
+} from '@ethersproject/providers'
+import { env } from '@/shared/lib/env'
 import { Page } from '@/shared/layout/Page/Page'
 import { minVisibleMs, waitRemaining } from '@/shared/lib/waitRemaining'
+import { useProviderStudio } from '@/shared/provider/useProviderStudio'
 import { Button } from '@/shared/ui/Button/Button'
 import { Card } from '@/shared/ui/Card/Card'
 import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
-import { Field } from '@/shared/ui/Field/Field'
 import { Heading } from '@/shared/ui/Heading/Heading'
-import { Input } from '@/shared/ui/Input/Input'
 import { RainbowText } from '@/shared/ui/RainbowText/RainbowText'
 import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
 import { Text } from '@/shared/ui/Text/Text'
 import { textSize, textTone } from '@/shared/ui/Text/textTokens'
 import { WorkingStage } from '@/shared/ui/WorkingStage/WorkingStage'
-import { actionVariant } from '@/shared/ui/action/action'
 import styles from '@/pages/ProviderAuthPage.module.css'
 
-const authMode = {
-  signIn: 'signIn',
-  register: 'register',
-} as const
-
-type AuthMode = (typeof authMode)[keyof typeof authMode]
-
-const workingCopy = {
-  [authMode.signIn]: {
-    label: 'Signing in',
-    eyebrow: '01 / Account',
-    heading: (
-      <>
-        Opening your <RainbowText>console</RainbowText>.
-      </>
-    ),
-    body: 'Checking this studio. Next you buy a domain and activate an inbox if you have not already.',
+const CHAIN_META: Record<
+  number,
+  {
+    hex: string
+    chainName: string
+    nativeCurrency: { name: string; symbol: string; decimals: number }
+    rpcUrls: string[]
+    blockExplorerUrls: string[]
+  }
+> = {
+  137: {
+    hex: '0x89',
+    chainName: 'Polygon',
+    nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+    rpcUrls: ['https://polygon.drpc.org'],
+    blockExplorerUrls: ['https://polygonscan.com'],
   },
-  [authMode.register]: {
-    label: 'Creating your account',
-    eyebrow: '01 / Account',
-    heading: (
-      <>
-        Creating your <RainbowText>account</RainbowText>.
-      </>
-    ),
-    body: 'Registering this studio. Next you buy a domain and activate an inbox.',
+  11155111: {
+    hex: '0xaa36a7',
+    chainName: 'Sepolia',
+    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+    rpcUrls: ['https://sepolia.drpc.org'],
+    blockExplorerUrls: ['https://sepolia.etherscan.io'],
   },
-} as const
-
-type ProviderAuthPageProps = {
-  onContinue: () => void
 }
 
-export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
-  const [mode, setMode] = useState<AuthMode>(authMode.signIn)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [workingMode, setWorkingMode] = useState<AuthMode | null>(null)
+type EthereumProvider = {
+  isMetaMask?: boolean
+  providers?: EthereumProvider[]
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+}
 
-  const isRegister = mode === authMode.register
+export type BackendConfig = {
+  chainId: number
+  backendAddress: string
+  contracts: Record<string, string>
+  artifacts: {
+    SecondLevelInteractor: { bytecode: string }
+    ArnaconResolver: { bytecode: string }
+  }
+}
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const startedAt = Date.now()
-    setWorkingMode(mode)
-    await waitRemaining(startedAt, minVisibleMs)
-    onContinue()
+export type ConsoleWallet = {
+  provider: Web3Provider
+  signer: JsonRpcSigner
+  address: string
+  config: BackendConfig
+}
+
+function getEthereum(): EthereumProvider | null {
+  const eth = (window as Window & { ethereum?: EthereumProvider }).ethereum
+  if (!eth) return null
+  if (Array.isArray(eth.providers) && eth.providers.length) {
+    return eth.providers.find((provider) => provider.isMetaMask) ?? eth
+  }
+  return eth
+}
+
+async function fetchConfig(): Promise<BackendConfig | null> {
+  try {
+    const res = await fetch(`${env.apiUrl.replace(/\/$/, '')}/config`)
+    const data: unknown = await res.json().catch(() => null)
+    if (!res.ok || !data || typeof data !== 'object') {
+      return null
+    }
+    const record = data as Record<string, unknown>
+    if (typeof record.chainId !== 'number' || !record.contracts) {
+      return null
+    }
+    if (typeof record.backendAddress !== 'string') {
+      return null
+    }
+    const artifacts = record.artifacts
+    if (!artifacts || typeof artifacts !== 'object') {
+      return null
+    }
+    return data as BackendConfig
+  } catch {
+    return null
+  }
+}
+
+async function ensureChain(
+  provider: Web3Provider,
+  chainId: number,
+): Promise<void> {
+  const meta = CHAIN_META[chainId]
+  if (!meta) {
+    throw new Error(`unsupported chainId ${chainId}`)
+  }
+  const id = await provider.send('eth_chainId', [])
+  if (parseInt(id, 16) === chainId) return
+  try {
+    await provider.send('wallet_switchEthereumChain', [{ chainId: meta.hex }])
+  } catch (err) {
+    const error = err as { code?: number }
+    if (error.code === 4902) {
+      await provider.send('wallet_addEthereumChain', [
+        {
+          chainId: meta.hex,
+          chainName: meta.chainName,
+          nativeCurrency: meta.nativeCurrency,
+          rpcUrls: meta.rpcUrls,
+          blockExplorerUrls: meta.blockExplorerUrls,
+        },
+      ])
+      return
+    }
+    throw err
+  }
+}
+
+export async function connectConsoleWallet(): Promise<ConsoleWallet> {
+  const ethereum = getEthereum()
+  if (!ethereum) {
+    throw new Error('MetaMask is not available on this origin.')
   }
 
-  if (workingMode) {
-    const copy = workingCopy[workingMode]
+  const provider = new Web3Provider(ethereum as ExternalProvider, 'any')
+  await provider.send('eth_requestAccounts', [])
 
+  const config = await fetchConfig()
+  if (!config) {
+    throw new Error('backend /config failed — is elead-backend-gcp reachable?')
+  }
+
+  const targetChainId = Number(import.meta.env.VITE_CHAIN_ID) || 11155111
+  if (config.chainId !== targetChainId) {
+    throw new Error(
+      `Backend is chain ${config.chainId}, console expects ${targetChainId} (Sepolia). Set Cloud Run CHAIN_ID=11155111.`,
+    )
+  }
+  await ensureChain(provider, targetChainId)
+
+  const signer = provider.getSigner()
+  const address = await signer.getAddress()
+  return { provider, signer, address, config }
+}
+
+export function ProviderAuthPage() {
+  const { signIn } = useProviderStudio()
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState<string | undefined>()
+
+  async function onConnect() {
+    setError(undefined)
+    const startedAt = Date.now()
+    setWorking(true)
+
+    try {
+      const wallet = await connectConsoleWallet()
+      await waitRemaining(startedAt, minVisibleMs)
+      signIn(wallet.address)
+    } catch (err) {
+      await waitRemaining(startedAt, minVisibleMs)
+      setWorking(false)
+      setError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
+  if (working) {
     return (
       <Page width="narrow">
         <WorkingStage
-          label={copy.label}
-          eyebrow={copy.eyebrow}
-          heading={copy.heading}
-          body={copy.body}
+          label="Connecting wallet"
+          eyebrow="01 / Wallet"
+          heading={
+            <>
+              Opening your <RainbowText>console</RainbowText>.
+            </>
+          }
+          body="Connecting the wallet that owns your Arnacon domain. No email account."
         />
       </Page>
     )
@@ -86,89 +201,31 @@ export function ProviderAuthPage({ onContinue }: ProviderAuthPageProps) {
     <Page>
       <div className={styles.split}>
         <Stack gap={stackGap.md}>
-          <Eyebrow>Register or sign in</Eyebrow>
+          <Eyebrow>Connect wallet</Eyebrow>
           <Heading level={1}>
-            Set up your <RainbowText>account</RainbowText>.
+            Your domain is the <RainbowText>account</RainbowText>.
           </Heading>
           <Text size={textSize.lg} tone={textTone.mute}>
-            Register or sign in. After that you buy a domain, activate an inbox,
-            and purchase client lines.
+            Connect the wallet that owns your 2LD. If you do not have one yet,
+            you buy it next. There is no username or email.
           </Text>
         </Stack>
 
         <Card>
-          <form onSubmit={onSubmit} noValidate>
-            <Stack gap={stackGap.md}>
-              <Stack gap={stackGap.sm}>
-                <Eyebrow>{isRegister ? 'Register' : 'Sign in'}</Eyebrow>
-                <Heading level={2}>
-                  {isRegister ? 'Create an account' : 'Welcome back'}
-                </Heading>
-                <Text tone={textTone.mute}>
-                  {isRegister
-                    ? 'Choose a username and password. The console opens next.'
-                    : 'Use the username and password from registration. The console opens next.'}
-                </Text>
-              </Stack>
-
-              <Field label="Username" htmlFor="provider-username">
-                <Input
-                  id="provider-username"
-                  name="username"
-                  autoComplete="username"
-                  placeholder="your studio name"
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                />
-              </Field>
-
-              <Field label="Password" htmlFor="provider-password">
-                <Input
-                  id="provider-password"
-                  name="password"
-                  type="password"
-                  autoComplete={isRegister ? 'new-password' : 'current-password'}
-                  placeholder="Your password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-              </Field>
-
-              {isRegister ? (
-                <Field
-                  label="Confirm password"
-                  htmlFor="provider-confirm-password"
-                >
-                  <Input
-                    id="provider-confirm-password"
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="Repeat your password"
-                    value={confirmPassword}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
-                  />
-                </Field>
-              ) : null}
-
-              <div className={styles.formActions}>
-                <Button
-                  type="button"
-                  variant={actionVariant.ghost}
-                  onClick={() =>
-                    setMode(isRegister ? authMode.signIn : authMode.register)
-                  }
-                >
-                  {isRegister
-                    ? 'Already registered? Sign in'
-                    : 'New here? Register'}
-                </Button>
-                <Button type="submit">
-                  {isRegister ? 'Register' : 'Sign in'}
-                </Button>
-              </div>
+          <Stack gap={stackGap.md}>
+            <Stack gap={stackGap.sm}>
+              <Eyebrow>MetaMask</Eyebrow>
+              <Heading level={2}>Connect to continue</Heading>
+              <Text tone={textTone.mute}>
+                Ownership is on-chain. This console follows the connected
+                wallet, not a password.
+              </Text>
             </Stack>
-          </form>
+            {error ? <Text tone={textTone.mute}>{error}</Text> : null}
+            <div className={styles.formActions}>
+              <Button onClick={() => void onConnect()}>Connect wallet</Button>
+            </div>
+          </Stack>
         </Card>
       </div>
     </Page>

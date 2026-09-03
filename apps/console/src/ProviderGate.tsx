@@ -15,12 +15,12 @@ export function ProviderGate() {
 }
 
 function ProviderGateInner() {
-  const { isSignedIn, signIn, account } = useProviderStudio()
+  const { isSignedIn, account } = useProviderStudio()
 
   if (!isSignedIn) {
     return (
       <AppShell items={[]}>
-        <ProviderAuthPage onContinue={signIn} />
+        <ProviderAuthPage />
       </AppShell>
     )
   }

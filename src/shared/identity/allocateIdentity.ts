@@ -1,4 +1,14 @@
+import { env } from '@/shared/lib/env'
 import type { EleadIdentity } from '@/shared/identity/types'
+
+export type CreatedLead = {
+  domain: string
+  label: string
+  status: string
+  storeStatus: string
+  createdAt: string
+  fullName: string
+}
 
 const identityKind = {
   lead: 'lead',
@@ -7,9 +17,34 @@ const identityKind = {
 
 export type IdentityKind = (typeof identityKind)[keyof typeof identityKind]
 
+function apiBase(): string {
+  return env.apiUrl.replace(/\/$/, '')
+}
+
+async function api<T>(path: string, opts: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${apiBase()}${path}`, {
+    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+    ...opts,
+  })
+  const text = await res.text()
+  let data: unknown = {}
+  try {
+    data = text ? JSON.parse(text) : {}
+  } catch {
+    data = { raw: text }
+  }
+  if (!res.ok) {
+    const message =
+      data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
+        ? data.error
+        : text || `HTTP ${res.status}`
+    throw new Error(message)
+  }
+  return data as T
+}
+
 /**
- * Allots a pre-generated ENS.
- * Replace this body with the real backend call when it exists.
+ * Inbox identity for the console. Still local until inbox install is wired.
  */
 export async function allocateIdentity(
   kind: IdentityKind = identityKind.lead,
@@ -25,4 +60,126 @@ export async function allocateIdentity(
   const activationUrl = `https://arnacon.app/activate?ens=${encodeURIComponent(ensName)}`
 
   return { ensName, activationUrl }
+}
+
+export async function allocateLead(domain: string): Promise<EleadIdentity> {
+  const result = await api<{ url: string; label: string; domain: string }>(
+    '/generateLeadQR',
+    {
+      method: 'POST',
+      body: JSON.stringify({ domain }),
+    },
+  )
+
+  return {
+    ensName: `${result.label}.${result.domain}.global`,
+    activationUrl: result.url,
+  }
+}
+
+export async function linkDomain(
+  domain: string,
+  spAddress: string,
+  extra?: { secondLevelInteractor?: string; semaphoreInteractor?: string },
+): Promise<void> {
+  await api('/linkDomain', {
+    method: 'POST',
+    body: JSON.stringify({ domain, spAddress, ...extra }),
+  })
+}
+
+export async function ensureSemaphore(
+  domain: string,
+  secondLevelInteractor: string,
+): Promise<{ semaphoreInteractor: string; needsGrant: boolean }> {
+  return api('/ensureSemaphore', {
+    method: 'POST',
+    body: JSON.stringify({ domain, secondLevelInteractor }),
+  })
+}
+
+export type GroupMembersResponse = {
+  commitments: string[]
+  scope: string
+  groupId?: string
+  merkleTreeRoot?: string
+  memberCount?: string
+  domain?: string
+}
+
+export async function getGroupMembers(query: {
+  label?: string
+  domain?: string
+}): Promise<GroupMembersResponse> {
+  const params = new URLSearchParams()
+  if (query.label) params.set('label', query.label)
+  if (query.domain) params.set('domain', query.domain)
+  return api(`/group-members?${params.toString()}`)
+}
+
+export type ActivationProof = {
+  merkleTreeDepth: number
+  merkleTreeRoot: string
+  nullifier: string
+  message: string
+  scope: string
+  points: string[]
+}
+
+export type ActivateResponse = {
+  label: string
+  owner: string
+  name: string
+  domain?: string
+  transactionHash?: string
+  clientUrl?: string
+}
+
+export async function activateWithProof(body: {
+  proof: ActivationProof
+  label: string
+  web3identity?: string
+  owner?: string
+  domain?: string
+}): Promise<ActivateResponse> {
+  return api('/activateWithProof', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'activateWithProof', ...body }),
+  })
+}
+
+export async function fetchLinkedDomain(domain: string): Promise<{
+  domain: string
+  spAddress: string
+  semaphoreInteractor?: string | null
+  secondLevelInteractor?: string | null
+} | null> {
+  const result = await api<{
+    domains: {
+      domain: string
+      spAddress: string
+      semaphoreInteractor?: string | null
+      secondLevelInteractor?: string | null
+    }[]
+  }>(`/domains?domain=${encodeURIComponent(domain)}`)
+  return result.domains.find((row) => row.domain === domain) || result.domains[0] || null
+}
+
+export async function listLinkedDomains(sp?: string): Promise<string[]> {
+  const query = sp ? `?sp=${encodeURIComponent(sp)}` : ''
+  const result = await api<{ domains: { domain: string }[] }>(`/domains${query}`)
+  return result.domains.map((row) => row.domain)
+}
+
+export async function listCreatedLeads(query: {
+  domain?: string
+  sp?: string
+}): Promise<CreatedLead[]> {
+  const params = new URLSearchParams()
+  if (query.domain) params.set('domain', query.domain)
+  if (query.sp) params.set('sp', query.sp)
+  const result = await api<{ leads: CreatedLead[] }>(
+    `/fetchLeads?${params.toString()}`,
+  )
+  return result.leads
 }

@@ -1,21 +1,36 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { routes } from '@/config/routes'
-import { allocateIdentity } from '@/shared/identity/allocateIdentity'
+import { allocateLead } from '@/shared/identity/allocateIdentity'
 import { Page } from '@/shared/layout/Page/Page'
 import { minVisibleMs, waitRemaining } from '@/shared/lib/waitRemaining'
 import { RainbowText } from '@/shared/ui/RainbowText/RainbowText'
 import { WorkingStage } from '@/shared/ui/WorkingStage/WorkingStage'
 
+function readDomain(state: unknown): string | null {
+  if (state == null || typeof state !== 'object' || !('domain' in state)) {
+    return null
+  }
+  const domain = state.domain
+  if (typeof domain !== 'string') {
+    return null
+  }
+  const next = domain.trim().toLowerCase().replace(/\.global$/, '')
+  return next || null
+}
+
 export function AllottingPage() {
+  const location = useLocation()
   const navigate = useNavigate()
+  const domain = readDomain(location.state)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
+    if (!domain) return
     let cancelled = false
     const startedAt = Date.now()
 
-    Promise.all([allocateIdentity(), waitRemaining(startedAt, minVisibleMs)])
+    Promise.all([allocateLead(domain), waitRemaining(startedAt, minVisibleMs)])
       .then(([identity]) => {
         if (!cancelled) {
           navigate(routes.contact, { replace: true, state: { identity } })
@@ -26,7 +41,7 @@ export function AllottingPage() {
           setError(
             cause instanceof Error
               ? cause
-              : new Error('Could not allot a private line.', { cause }),
+              : new Error('Could not create a private line.', { cause }),
           )
         }
       })
@@ -34,7 +49,11 @@ export function AllottingPage() {
     return () => {
       cancelled = true
     }
-  }, [navigate])
+  }, [domain, navigate])
+
+  if (!domain) {
+    return <Navigate to={routes.home} replace />
+  }
 
   if (error) {
     throw error
@@ -43,14 +62,14 @@ export function AllottingPage() {
   return (
     <Page width="narrow">
       <WorkingStage
-        label="Allotting a private line"
+        label="Creating a private line"
         eyebrow="01 / Access"
         heading={
           <>
-            Allotting a <RainbowText>private line</RainbowText>.
+            Creating a <RainbowText>private line</RainbowText>.
           </>
         }
-        body="We are preparing an Elead identity for this lead. Next you will get a QR code to scan in Arnacon. Nothing personal is collected."
+        body={`Issuing an identity under ${domain}.global. Next you will get a QR code to scan in Arnacon.`}
       />
     </Page>
   )

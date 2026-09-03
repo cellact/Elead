@@ -1,10 +1,15 @@
+import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { routes } from '@/config/routes'
+import { listLinkedDomains } from '@/shared/identity/allocateIdentity'
 import { Page } from '@/shared/layout/Page/Page'
 import { Container } from '@/shared/ui/Container/Container'
 import { Divider } from '@/shared/ui/Divider/Divider'
 import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
+import { Field } from '@/shared/ui/Field/Field'
 import { Heading } from '@/shared/ui/Heading/Heading'
-import { LinkButton } from '@/shared/ui/LinkButton/LinkButton'
+import { Input } from '@/shared/ui/Input/Input'
+import { Button } from '@/shared/ui/Button/Button'
 import { RainbowText } from '@/shared/ui/RainbowText/RainbowText'
 import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
@@ -15,13 +20,13 @@ import styles from '@/pages/HomePage.module.css'
 const steps = [
   {
     number: '01',
-    title: 'Ask to talk',
-    copy: 'You never type a phone number or email. Nothing personal is collected on this site.',
+    title: 'Pick a provider domain',
+    copy: 'Choose which linked 2LD you want a lead under. Demo only — a real site would already know its own domain.',
   },
   {
     number: '02',
     title: 'Get a private line',
-    copy: 'We allot a line just for this lead and show you a QR code to scan. It is free.',
+    copy: 'The backend creates that identity when you ask. You do not use a pre-bought pool.',
   },
   {
     number: '03',
@@ -31,6 +36,38 @@ const steps = [
 ] as const
 
 export function HomePage() {
+  const navigate = useNavigate()
+  const [domain, setDomain] = useState('')
+  const [linked, setLinked] = useState<string[]>([])
+  const [error, setError] = useState<string | undefined>()
+
+  useEffect(() => {
+    let cancelled = false
+    listLinkedDomains()
+      .then((domains) => {
+        if (cancelled) return
+        setLinked(domains)
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) {
+          setError(cause instanceof Error ? cause.message : String(cause))
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  function onContact(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const next = domain.trim().toLowerCase().replace(/\.global$/, '')
+    if (!next) {
+      setError('Enter a domain to take a lead from.')
+      return
+    }
+    navigate(routes.allotting, { state: { domain: next } })
+  }
+
   return (
     <>
       <section className={styles.hero}>
@@ -47,7 +84,31 @@ export function HomePage() {
               hand over a phone or email that can be stored, shared, or used
               again later.
             </Text>
-            <LinkButton to={routes.allotting}>Contact us</LinkButton>
+            <form onSubmit={onContact}>
+              <Stack gap={stackGap.sm}>
+                <Field label="Provider domain" htmlFor="lead-domain" error={error}>
+                  <Input
+                    id="lead-domain"
+                    name="lead-domain"
+                    list="linked-domains"
+                    autoComplete="off"
+                    placeholder="yourstudio"
+                    value={domain}
+                    hasError={Boolean(error)}
+                    onChange={(event) => {
+                      setError(undefined)
+                      setDomain(event.target.value)
+                    }}
+                  />
+                </Field>
+                <datalist id="linked-domains">
+                  {linked.map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
+                <Button type="submit">Contact us</Button>
+              </Stack>
+            </form>
           </Stack>
         </Container>
       </section>

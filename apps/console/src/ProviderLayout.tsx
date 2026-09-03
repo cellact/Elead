@@ -9,8 +9,12 @@ import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
 import styles from '@/ProviderStudio.module.css'
 
+function shortAddress(address: string): string {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`
+}
+
 export function ProviderLayout() {
-  const { account, signOut } = useProviderStudio()
+  const { account, wallet, signOut } = useProviderStudio()
 
   return (
     <div className={styles.studio}>
@@ -18,7 +22,9 @@ export function ProviderLayout() {
         <div className={styles.brand}>
           <Logo />
           {account.domain ? (
-            <p className={styles.domain}>{account.domain}.elead.eth</p>
+            <p className={styles.domain}>{account.domain}.global</p>
+          ) : wallet ? (
+            <p className={styles.domain}>{shortAddress(wallet)}</p>
           ) : null}
         </div>
         <nav className={styles.nav} aria-label="Elead Console">
@@ -41,7 +47,7 @@ export function ProviderLayout() {
             size={actionSize.sm}
             onClick={signOut}
           >
-            Log out
+            Disconnect
           </Button>
         </Stack>
       </aside>

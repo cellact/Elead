@@ -9,28 +9,46 @@ import {
   ProviderStudioContext,
   type ProviderStudioValue,
 } from '@/shared/provider/studio-context'
-import { loadProviderAccount, saveProviderAccount } from '@/shared/provider/storage'
-import { identitiesAvailable, type ProviderAccount } from '@/shared/provider/types'
+import { clearAllProviderAccounts } from '@/shared/provider/storage'
+import {
+  emptyProviderAccount,
+  identitiesAvailable,
+  type ProviderAccount,
+} from '@/shared/provider/types'
 
 export function ProviderStudioProvider({ children }: { children: ReactNode }) {
-  const [isSignedIn, setSignedIn] = useState(() => readProviderSession())
-  const [account, setAccount] = useState(() => loadProviderAccount())
+  const [wallet, setWallet] = useState(() => readProviderSession())
+  const [account, setAccount] = useState(emptyProviderAccount)
 
   const persistAccount = useCallback((next: ProviderAccount) => {
     identitiesAvailable(next)
-    saveProviderAccount(next)
     setAccount(next)
   }, [])
 
-  const signIn = useCallback(() => {
-    writeProviderSession()
-    setSignedIn(true)
+  const signIn = useCallback((address: string) => {
+    writeProviderSession(address)
+    setWallet(address.toLowerCase())
+    setAccount(emptyProviderAccount())
   }, [])
 
   const signOut = useCallback(() => {
     clearProviderSession()
-    setSignedIn(false)
+    clearAllProviderAccounts()
+    setWallet(null)
+    setAccount(emptyProviderAccount())
   }, [])
+
+  const chooseDomain = useCallback((domain: string) => {
+    persistAccount({
+      ...emptyProviderAccount(),
+      domain,
+      hasFinishedSetup: true,
+      inboxIdentity: {
+        ensName: `inbox.${domain}.global`,
+        activationUrl: `arnacon://inbox/${domain}`,
+      },
+    })
+  }, [persistAccount])
 
   const saveInbox = useCallback(
     (domain: string, inboxIdentity: EleadIdentity) => {
@@ -72,19 +90,22 @@ export function ProviderStudioProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ProviderStudioValue>(
     () => ({
-      isSignedIn,
+      isSignedIn: wallet !== null,
+      wallet,
       account,
       signIn,
       signOut,
+      chooseDomain,
       saveInbox,
       finishSetup,
       purchaseIdentities,
     }),
     [
-      isSignedIn,
+      wallet,
       account,
       signIn,
       signOut,
+      chooseDomain,
       saveInbox,
       finishSetup,
       purchaseIdentities,

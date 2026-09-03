@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react'
 import { routes } from '@/config/routes'
+import { listCreatedLeads, type CreatedLead } from '@/shared/identity/allocateIdentity'
 import { Page } from '@/shared/layout/Page/Page'
-import { identitiesAvailable } from '@/shared/provider/types'
 import { useProviderStudio } from '@/shared/provider/useProviderStudio'
 import { Card } from '@/shared/ui/Card/Card'
 import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
@@ -14,15 +15,42 @@ import { Text } from '@/shared/ui/Text/Text'
 import { textSize, textTone } from '@/shared/ui/Text/textTokens'
 import { actionVariant } from '@/shared/ui/action/action'
 
+function isClaimed(lead: CreatedLead): boolean {
+  return lead.status !== 'unclaimed'
+}
+
 export function OverviewPage() {
   const { account } = useProviderStudio()
-  const available = identitiesAvailable(account)
   const domain = account.domain
   const inbox = account.inboxIdentity
+  const [leads, setLeads] = useState<CreatedLead[] | null>(null)
+  const [error, setError] = useState<string | undefined>()
 
-  if (!domain || !inbox) {
-    throw new Error('Overview cannot render before setup is finished.')
+  useEffect(() => {
+    if (!domain) return
+    let cancelled = false
+    listCreatedLeads({ domain })
+      .then((rows) => {
+        if (!cancelled) setLeads(rows)
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) {
+          setError(cause instanceof Error ? cause.message : String(cause))
+          setLeads([])
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [domain])
+
+  if (!domain) {
+    throw new Error('Overview cannot render before a domain is chosen.')
   }
+
+  const created = leads?.length ?? 0
+  const claimed = leads?.filter(isClaimed).length ?? 0
+  const open = created - claimed
 
   return (
     <Page>
@@ -32,37 +60,38 @@ export function OverviewPage() {
           Your Elead <RainbowText>identities</RainbowText>.
         </Heading>
         <Text size={textSize.lg} tone={textTone.mute}>
-          {domain}.elead.eth · Inbox {inbox.ensName}. Pregenerated lines wait
-          for a client to claim one.
+          {domain}.global
+          {inbox ? ` · Inbox ${inbox.ensName}` : ''}. Lines are created when a
+          client asks to talk — you do not pre-buy a pool.
         </Text>
-        {account.identitiesPurchased === 0 ? (
+        {error ? <Text tone={textTone.mute}>{error}</Text> : null}
+        {leads && created === 0 ? (
           <Text tone={textTone.mute}>
-            No client lines yet. Purchase identities to allot a private line
-            when someone asks to talk.
+            No client lines yet. They appear here when someone contacts you.
           </Text>
         ) : null}
       </Stack>
 
       <Grid columns={3}>
         <Card>
-          <Eyebrow>Purchased</Eyebrow>
-          <Heading level={3}>{String(account.identitiesPurchased)}</Heading>
-          <Text tone={textTone.mute}>Pregenerated and ready to allot.</Text>
+          <Eyebrow>Created</Eyebrow>
+          <Heading level={3}>{leads ? String(created) : '—'}</Heading>
+          <Text tone={textTone.mute}>Identities issued to clients.</Text>
         </Card>
         <Card>
           <Eyebrow>In use</Eyebrow>
-          <Heading level={3}>{String(account.identitiesClaimed)}</Heading>
-          <Text tone={textTone.mute}>Claimed by clients for a lead.</Text>
+          <Heading level={3}>{leads ? String(claimed) : '—'}</Heading>
+          <Text tone={textTone.mute}>Claimed or no longer unclaimed.</Text>
         </Card>
         <Card>
-          <Eyebrow>Available</Eyebrow>
-          <Heading level={3}>{String(available)}</Heading>
-          <Text tone={textTone.mute}>Still waiting to be claimed.</Text>
+          <Eyebrow>Unclaimed</Eyebrow>
+          <Heading level={3}>{leads ? String(open) : '—'}</Heading>
+          <Text tone={textTone.mute}>Created, not yet activated.</Text>
         </Card>
       </Grid>
 
       <LinkButton to={routes.manage} variant={actionVariant.secondary}>
-        Purchase more identities
+        View identities
       </LinkButton>
     </Page>
   )
