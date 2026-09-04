@@ -1,3 +1,9 @@
+.chamber {
+  min-height: calc(100dvh - var(--section-space));
+  border-top: var(--line) solid rgba(10, 10, 9, 0.16);
+  padding-top: var(--space-5);
+}
+
 .split {
   display: grid;
   grid-template-columns: 1fr;

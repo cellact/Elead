@@ -1,3 +1,9 @@
+.chamber {
+  min-height: calc(100dvh - var(--section-space));
+  border-top: var(--line) solid rgba(10, 10, 9, 0.16);
+  padding-top: var(--space-5);
+}
+
 .split {
   display: grid;
   grid-template-columns: 1fr;
@@ -24,54 +30,73 @@
   line-height: var(--leading-snug);
 }
 
-.steps {
+.board {
   display: flex;
-  flex-direction: column;
+  gap: 4px;
+  width: 100%;
 }
 
-.step {
-  padding-block: var(--space-4);
-  border-top: var(--line) solid var(--color-line);
+.cell {
+  flex: 1;
+  min-width: 0;
 }
 
-.stepHead {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
-}
-
-.mark {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.12em;
+.word {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  font-size: 9px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  min-width: 5.5rem;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);
-  gap: var(--space-4);
-  padding-block: var(--space-4);
-  border-top: var(--line) solid var(--color-line);
-}
-
-.row[data-status='done'] .mark {
-  color: var(--color-ink);
-}
-
-.row[data-status='active'] .mark,
-.row[data-status='working'] .mark {
-  color: var(--color-ink);
-}
-
-.row[data-status='pending'] .mark,
-.row[data-status='skipped'] .mark {
   color: var(--color-mute);
+  white-space: nowrap;
 }
 
-.row[data-status='skipped'] {
-  opacity: 0.55;
+.cell[data-status='active'] .word,
+.cell[data-status='working'] .word {
+  color: var(--color-ink);
+}
+
+.bar {
+  display: block;
+  height: 3px;
+  border-radius: 999px;
+  box-sizing: border-box;
+  background: var(--color-ink);
+  border: var(--line) solid var(--color-ink);
+}
+
+.cell[data-status='done'] .bar,
+.cell[data-status='skipped'] .bar {
+  background: rgba(10, 10, 9, 0.22);
+  border-color: transparent;
+}
+
+.cell[data-status='pending'] .bar {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+.cell[data-status='active'] .bar,
+.cell[data-status='working'] .bar {
+  height: 5px;
+  background: var(--color-paper);
+  border-color: var(--color-ink);
+}
+
+.logs {
+  margin: 0;
+  max-height: 12rem;
+  overflow: auto;
+  padding: var(--space-3);
+  border: var(--line) solid var(--color-line);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 @media (min-width: 800px) {

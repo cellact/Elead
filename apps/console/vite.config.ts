@@ -34,6 +34,7 @@ export default defineConfig({
       '/generateInboxQR': { target: 'http://127.0.0.1:8080', changeOrigin: true },
       '/inboxes': { target: 'http://127.0.0.1:8080', changeOrigin: true },
       '/setInboxRouting': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/setInboxActive': { target: 'http://127.0.0.1:8080', changeOrigin: true },
     },
   },
   preview: {

@@ -1,12 +1,12 @@
 @import '../../../src/shared/theme/tokens.css';
 
 :root {
-  --color-paper: var(--palette-surface-dark);
-  --color-ink: var(--palette-paper);
-  --color-ink-soft: #d8d6cf;
-  --color-mute: var(--palette-muted-dark);
-  --color-line: rgba(255, 255, 255, 0.14);
-  --color-line-strong: var(--palette-paper);
-  --color-surface: #181817;
-  --color-danger: var(--palette-danger-on-dark);
+  --color-paper: var(--palette-paper);
+  --color-ink: var(--palette-ink);
+  --color-ink-soft: #2a2a27;
+  --color-mute: var(--palette-muted-light);
+  --color-line: rgba(10, 10, 9, 0.14);
+  --color-line-strong: rgba(10, 10, 9, 0.22);
+  --color-surface: var(--palette-white);
+  --color-danger: var(--palette-danger);
 }

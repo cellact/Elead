@@ -11,7 +11,5 @@ function readRequiredEnv(name: keyof ImportMetaEnv): string {
 }
 
 export const env = {
-  appName: readRequiredEnv('VITE_APP_NAME'),
-  appTagline: readRequiredEnv('VITE_APP_TAGLINE'),
   apiUrl: readRequiredEnv('VITE_API_URL'),
 } as const

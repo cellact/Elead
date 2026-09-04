@@ -2,7 +2,6 @@ import { routes } from '@/config/routes'
 import type { NavItem } from '@/shared/config/site'
 
 export const consoleNav: readonly NavItem[] = [
-  { to: routes.home, label: 'Overview', end: true },
-  { to: routes.manage, label: 'Manage' },
-  { to: routes.inbox, label: 'Inbox' },
+  { to: routes.studio, label: 'Inboxes', end: true },
+  { to: routes.manage, label: 'Identities' },
 ]

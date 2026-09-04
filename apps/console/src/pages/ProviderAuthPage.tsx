@@ -10,13 +10,11 @@ import { minVisibleMs, waitRemaining } from '@/shared/lib/waitRemaining'
 import { useProviderStudio } from '@/shared/provider/useProviderStudio'
 import { Button } from '@/shared/ui/Button/Button'
 import { Card } from '@/shared/ui/Card/Card'
-import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
 import { Heading } from '@/shared/ui/Heading/Heading'
-import { RainbowText } from '@/shared/ui/RainbowText/RainbowText'
 import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
 import { Text } from '@/shared/ui/Text/Text'
-import { textSize, textTone } from '@/shared/ui/Text/textTokens'
+import { textTone } from '@/shared/ui/Text/textTokens'
 import { WorkingStage } from '@/shared/ui/WorkingStage/WorkingStage'
 import styles from '@/pages/ProviderAuthPage.module.css'
 
@@ -59,6 +57,20 @@ export type BackendConfig = {
   artifacts: {
     SecondLevelInteractor: { bytecode: string }
     ArnaconResolver: { bytecode: string }
+    PoseidonT3?: {
+      bytecode: string
+      linkReferences?: Record<
+        string,
+        Record<string, { start: number; length: number }[]>
+      >
+    }
+    SemaphoreInteractor?: {
+      bytecode: string
+      linkReferences?: Record<
+        string,
+        Record<string, { start: number; length: number }[]>
+      >
+    }
   }
 }
 
@@ -183,44 +195,24 @@ export function ProviderAuthPage() {
   if (working) {
     return (
       <Page width="narrow">
+        <div className={styles.chamber}>
         <WorkingStage
           label="Connecting wallet"
-          eyebrow="01 / Wallet"
-          heading={
-            <>
-              Opening your <RainbowText>console</RainbowText>.
-            </>
-          }
+          eyebrow="Wallet"
+          heading="Opening the console."
           body="Connecting the wallet that owns your Arnacon domain. No email account."
         />
+        </div>
       </Page>
     )
   }
 
   return (
     <Page>
-      <div className={styles.split}>
-        <Stack gap={stackGap.md}>
-          <Eyebrow>Connect wallet</Eyebrow>
-          <Heading level={1}>
-            Your domain is the <RainbowText>account</RainbowText>.
-          </Heading>
-          <Text size={textSize.lg} tone={textTone.mute}>
-            Connect the wallet that owns your 2LD. If you do not have one yet,
-            you buy it next. There is no username or email.
-          </Text>
-        </Stack>
-
+      <div className={styles.chamber}>
         <Card>
           <Stack gap={stackGap.md}>
-            <Stack gap={stackGap.sm}>
-              <Eyebrow>MetaMask</Eyebrow>
-              <Heading level={2}>Connect to continue</Heading>
-              <Text tone={textTone.mute}>
-                Ownership is on-chain. This console follows the connected
-                wallet, not a password.
-              </Text>
-            </Stack>
+            <Heading level={1}>Connect wallet</Heading>
             {error ? <Text tone={textTone.mute}>{error}</Text> : null}
             <div className={styles.formActions}>
               <Button onClick={() => void onConnect()}>Connect wallet</Button>

@@ -8,7 +8,6 @@ import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
 import { Grid } from '@/shared/ui/Grid/Grid'
 import { Heading } from '@/shared/ui/Heading/Heading'
 import { LinkButton } from '@/shared/ui/LinkButton/LinkButton'
-import { RainbowText } from '@/shared/ui/RainbowText/RainbowText'
 import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
 import { Text } from '@/shared/ui/Text/Text'
@@ -55,10 +54,8 @@ export function OverviewPage() {
   return (
     <Page>
       <Stack gap={stackGap.md}>
-        <Eyebrow>01 / Overview</Eyebrow>
-        <Heading level={1}>
-          Your Elead <RainbowText>identities</RainbowText>.
-        </Heading>
+        <Eyebrow>Overview</Eyebrow>
+        <Heading level={1}>Your identities.</Heading>
         <Text size={textSize.lg} tone={textTone.mute}>
           {domain}.global
           {inbox ? ` · Inbox ${inbox.ensName}` : ''}. Lines are created when a

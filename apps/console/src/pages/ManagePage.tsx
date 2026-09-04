@@ -5,7 +5,6 @@ import { useProviderStudio } from '@/shared/provider/useProviderStudio'
 import { Card } from '@/shared/ui/Card/Card'
 import { Eyebrow } from '@/shared/ui/Eyebrow/Eyebrow'
 import { Heading } from '@/shared/ui/Heading/Heading'
-import { RainbowText } from '@/shared/ui/RainbowText/RainbowText'
 import { Stack } from '@/shared/ui/Stack/Stack'
 import { stackGap } from '@/shared/ui/Stack/stackGap'
 import { Text } from '@/shared/ui/Text/Text'
@@ -38,10 +37,8 @@ export function ManagePage() {
   return (
     <Page>
       <Stack gap={stackGap.md}>
-        <Eyebrow>02 / Manage</Eyebrow>
-        <Heading level={1}>
-          Created Elead <RainbowText>identities</RainbowText>.
-        </Heading>
+        <Eyebrow>Identities</Eyebrow>
+        <Heading level={1}>Created lines</Heading>
         <Text size={textSize.lg} tone={textTone.mute}>
           These are lines the backend issued when a client asked to talk. Status
           overlays come from Swarm inbox feeds when a case exists.

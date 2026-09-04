@@ -1,0 +1,230 @@
+.frame {
+  width: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.mosaic {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: block;
+  pointer-events: none;
+  opacity: 0.38;
+}
+
+@property --s {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --band {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+.tile {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(var(--s));
+  filter: brightness(calc(1 + var(--band) * 1.9));
+  animation-duration: var(--duration, 8s), 5s;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1), linear;
+  animation-iteration-count: infinite;
+  animation-delay: var(--delay, 0s), var(--band-delay, 0s);
+}
+
+.tile[data-tone='0'] {
+  animation-name: morph0, band;
+}
+
+.tile[data-tone='1'] {
+  animation-name: morph1, band;
+}
+
+.tile[data-tone='2'] {
+  animation-name: morph2, band;
+}
+
+.tile[data-tone='3'] {
+  animation-name: morph3, band;
+}
+
+.tile[data-tone='4'] {
+  animation-name: morph4, band;
+}
+
+.tile[data-tone='5'] {
+  animation-name: morph5, band;
+}
+
+.tile[data-tone='6'] {
+  animation-name: morph6, band;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-6);
+  padding: var(--space-7) clamp(1.25rem, 5vw, 4rem);
+  max-width: 42rem;
+  background: linear-gradient(
+    90deg,
+    rgba(243, 241, 235, 0.94) 0%,
+    rgba(243, 241, 235, 0.72) 58%,
+    rgba(243, 241, 235, 0) 100%
+  );
+}
+
+.wordmark {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+@keyframes morph0 {
+  0%,
+  100% {
+    fill: #e8dcb0;
+    --s: 0.9;
+  }
+  25% {
+    fill: #e2d4a4;
+    --s: 0.97;
+  }
+  50% {
+    fill: #dcc888;
+    --s: 1.06;
+  }
+  75% {
+    fill: #e2d4a4;
+    --s: 0.98;
+  }
+}
+
+@keyframes morph1 {
+  0%,
+  100% {
+    fill: #efe6c8;
+    --s: 0.92;
+  }
+  50% {
+    fill: #e2d4a4;
+    --s: 1.05;
+  }
+}
+
+@keyframes morph2 {
+  0%,
+  100% {
+    fill: #dcc888;
+    --s: 0.91;
+  }
+  50% {
+    fill: #f1ead6;
+    --s: 1.07;
+  }
+}
+
+@keyframes morph3 {
+  0%,
+  100% {
+    fill: #f1ead6;
+    --s: 0.93;
+  }
+  50% {
+    fill: #eae0c0;
+    --s: 1.04;
+  }
+}
+
+@keyframes morph4 {
+  0%,
+  100% {
+    fill: #eae0c0;
+    --s: 0.9;
+  }
+  50% {
+    fill: #e8dcb0;
+    --s: 1.06;
+  }
+}
+
+@keyframes morph5 {
+  0%,
+  100% {
+    fill: #e2d4a4;
+    --s: 0.94;
+  }
+  50% {
+    fill: #efe6c8;
+    --s: 1.05;
+  }
+}
+
+@keyframes morph6 {
+  0%,
+  100% {
+    fill: #f3f1eb;
+    --s: 0.91;
+  }
+  50% {
+    fill: #dcc888;
+    --s: 1.06;
+  }
+}
+
+@keyframes band {
+  0%,
+  5.4%,
+  100% {
+    --band: 0;
+  }
+  0.7% {
+    --band: 0.13;
+  }
+  1.5% {
+    --band: 0.37;
+  }
+  2.4% {
+    --band: 1;
+  }
+  3.3% {
+    --band: 0.37;
+  }
+  4.2% {
+    --band: 0.13;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    animation: none;
+    fill: #e8dcb0;
+  }
+}

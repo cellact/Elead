@@ -186,10 +186,12 @@ export async function generateInboxQR(body: {
   })
 }
 
+export type InboxRegistryStatus = 'active' | 'inactive'
+
 export type EleadInbox = {
   label: string
   fullName: string
-  status: string
+  status: InboxRegistryStatus
   createdAt?: string
 }
 
@@ -202,6 +204,19 @@ export type InboxList = {
 
 export async function listInboxes(domain: string): Promise<InboxList> {
   return api(`/inboxes?domain=${encodeURIComponent(domain)}`)
+}
+
+export async function setInboxActive(body: {
+  domain: string
+  inboxName: string
+  status: InboxRegistryStatus
+  timestamp: number
+  signature: string
+}): Promise<InboxList> {
+  return api('/setInboxActive', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
 }
 
 export async function setInboxRouting(body: {
@@ -226,8 +241,8 @@ export function inboxCreateMessage(
 }
 
 export function inboxRoutingMessage(
-  domain: string
-  inboxName: string
+  domain: string,
+  inboxName: string,
   timestamp: number,
 ): string {
   return `elead-inbox-routing\n${domain}\n${inboxName}\n${timestamp}`
@@ -238,7 +253,7 @@ export function inboxFeedMessage(
   inboxLabel: string,
   timestamp: number,
 ): string {
-  return `elead-inbox-feed\n${domain}\n${inboxLabel}\n${timestamp}`
+  return `aegis-inbox-feed\n${domain}\n${inboxLabel}\n${timestamp}`
 }
 
 export type InboxFeedCounts = {
