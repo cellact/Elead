@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "name": "elead-console",
   "framework": "vite",
   "installCommand": "npm install",
   "buildCommand": "npm run build:console",

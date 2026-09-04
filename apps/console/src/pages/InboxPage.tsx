@@ -128,6 +128,7 @@ export function InboxPage() {
     setBusy(true)
     setStatus('Connecting wallet…')
     try {
+      if (!domain) throw new Error('No domain in session.')
       const session = await withSpWallet()
       setStatus('Sign the inbox name in MetaMask…')
       const timestamp = Date.now()
@@ -157,6 +158,7 @@ export function InboxPage() {
     setBusy(true)
     setStatus('Connecting wallet…')
     try {
+      if (!domain) throw new Error('No domain in session.')
       const session = await withSpWallet()
       const inboxLabel = mode === 'group' ? '-' : inbox?.label
       if (mode === 'single' && !inboxLabel) {
@@ -196,6 +198,7 @@ export function InboxPage() {
     setBusy(true)
     setStatus('Connecting wallet…')
     try {
+      if (!domain) throw new Error('No domain in session.')
       const session = await withSpWallet()
       setStatus('Sign inbox status in MetaMask…')
       const timestamp = Date.now()

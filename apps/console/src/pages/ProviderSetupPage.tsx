@@ -58,32 +58,6 @@ const ABI = {
   wrapper: ['function ownerOf(uint256 id) view returns (address)'],
 } as const
 
-const setupWork = {
-  domain: 'domain',
-  attach: 'attach',
-  inbox: 'inbox',
-} as const
-
-type SetupWork = (typeof setupWork)[keyof typeof setupWork]
-
-const steps = [
-  {
-    number: '01',
-    title: 'Open Arnacon',
-    copy: 'Open Arnacon on the phone that will hold the console inbox.',
-  },
-  {
-    number: '02',
-    title: 'Scan this QR code',
-    copy: 'Use Scan in the app and point it at the square.',
-  },
-  {
-    number: '03',
-    title: 'Activate the inbox',
-    copy: 'Turn on this identity. Client leads arrive here.',
-  },
-] as const
-
 function requireContract(
   contracts: Record<string, string>,
   name: string,
@@ -305,6 +279,7 @@ async function deployPoseidonT3(wallet: ConsoleWallet): Promise<string> {
   const exists = await hasCode(wallet, existing)
   logAegis('poseidon check', { existing: existing || null, hasCode: exists })
   if (exists) {
+    if (!existing) throw new Error('PoseidonT3 missing from /config')
     logAegis('poseidon skip, already on chain', existing)
     return existing
   }
@@ -344,6 +319,7 @@ async function deploySemaphoreInteractor(
     )
   }
   const poseidonAddr = wallet.config.contracts.PoseidonT3
+  if (!poseidonAddr) throw new Error('PoseidonT3 missing from /config')
   if (!(await hasCode(wallet, poseidonAddr))) {
     throw new Error('PoseidonT3 is not on chain. Run the Poseidon step first.')
   }
