@@ -43,8 +43,8 @@ export function ManagePage() {
           Created Elead <RainbowText>identities</RainbowText>.
         </Heading>
         <Text size={textSize.lg} tone={textTone.mute}>
-          These are lines the backend issued when a client asked to talk. There
-          is no inventory to purchase.
+          These are lines the backend issued when a client asked to talk. Status
+          overlays come from Swarm inbox feeds when a case exists.
         </Text>
         {error ? <Text tone={textTone.mute}>{error}</Text> : null}
       </Stack>
@@ -61,6 +61,9 @@ export function ManagePage() {
               <Heading level={3}>{lead.fullName}</Heading>
               <Text tone={textTone.mute}>
                 {lead.label} · {lead.domain} · {lead.createdAt}
+                {lead.swarmInbox
+                  ? ` · swarm ${lead.swarmInbox}.${lead.domain}.global`
+                  : ' · not on a Swarm inbox feed yet'}
               </Text>
             </Card>
           ))}

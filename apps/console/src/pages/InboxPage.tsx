@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   generateInboxQR,
+  getInboxFeedSummary,
   inboxCreateMessage,
   inboxRoutingMessage,
   listInboxes,
   setInboxRouting,
   type EleadInbox,
+  type InboxFeedCounts,
   type InboxList,
 } from '@/shared/identity/allocateIdentity'
 import { Page } from '@/shared/layout/Page/Page'
@@ -36,6 +38,9 @@ export function InboxPage() {
   const [status, setStatus] = useState<string | undefined>()
   const [busy, setBusy] = useState(false)
   const [list, setList] = useState<InboxList | null>(null)
+  const [summaries, setSummaries] = useState<Record<string, InboxFeedCounts>>(
+    {},
+  )
   const [issued, setIssued] = useState<{
     url: string
     fullName: string
@@ -45,14 +50,53 @@ export function InboxPage() {
     if (!domain) return
     const next = await listInboxes(domain)
     setList(next)
+    const rows = next.inboxes || []
+    const packed = await Promise.all(
+      rows.map(async (inbox) => {
+        try {
+          const summary = await getInboxFeedSummary({
+            domain,
+            inbox: inbox.label,
+          })
+          return [inbox.label, summary.counts] as const
+        } catch {
+          return [inbox.label, null] as const
+        }
+      }),
+    )
+    const nextSummaries: Record<string, InboxFeedCounts> = {}
+    for (const [label, counts] of packed) {
+      if (counts) nextSummaries[label] = counts
+    }
+    setSummaries(nextSummaries)
   }, [domain])
 
   useEffect(() => {
     if (!domain) return
     let cancelled = false
     listInboxes(domain)
-      .then((next) => {
-        if (!cancelled) setList(next)
+      .then(async (next) => {
+        if (cancelled) return
+        setList(next)
+        const packed = await Promise.all(
+          (next.inboxes || []).map(async (inbox) => {
+            try {
+              const summary = await getInboxFeedSummary({
+                domain,
+                inbox: inbox.label,
+              })
+              return [inbox.label, summary.counts] as const
+            } catch {
+              return [inbox.label, null] as const
+            }
+          }),
+        )
+        if (cancelled) return
+        const nextSummaries: Record<string, InboxFeedCounts> = {}
+        for (const [label, counts] of packed) {
+          if (counts) nextSummaries[label] = counts
+        }
+        setSummaries(nextSummaries)
       })
       .catch((cause: unknown) => {
         if (!cancelled) {
@@ -241,6 +285,11 @@ export function InboxPage() {
               <Text tone={textTone.mute}>
                 {inbox.status}
                 {inbox.createdAt ? ` · ${inbox.createdAt}` : ''}
+                {(() => {
+                  const counts = summaries[inbox.label]
+                  if (!counts) return ''
+                  return ` · pending ${counts.pending} · in progress ${counts.in_progress} · done ${counts.done} · expired ${counts.expired}`
+                })()}
               </Text>
             </Card>
           ))

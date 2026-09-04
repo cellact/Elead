@@ -9,6 +9,8 @@ export type CreatedLead = {
   storeStatus: string
   createdAt: string
   fullName: string
+  swarmInbox?: string | null
+  swarmUpdatedAt?: string | null
 }
 
 const identityKind = {
@@ -224,11 +226,89 @@ export function inboxCreateMessage(
 }
 
 export function inboxRoutingMessage(
-  domain: string,
-  inboxName: string,
+  domain: string
+  inboxName: string
   timestamp: number,
 ): string {
   return `elead-inbox-routing\n${domain}\n${inboxName}\n${timestamp}`
+}
+
+export function inboxFeedMessage(
+  domain: string,
+  inboxLabel: string,
+  timestamp: number,
+): string {
+  return `elead-inbox-feed\n${domain}\n${inboxLabel}\n${timestamp}`
+}
+
+export type InboxFeedCounts = {
+  pending: number
+  in_progress: number
+  done: number
+  expired: number
+}
+
+export type InboxFeedCase = {
+  status: string
+  updatedAt: string
+}
+
+export type InboxFeedLead = {
+  domain: string
+  inbox: string
+  fullName: string
+  lead: string
+  status: string | null
+  updatedAt: string | null
+  found: boolean
+}
+
+export type InboxFeedSummary = {
+  domain: string
+  inbox: string
+  fullName: string
+  updatedAt: string
+  counts: InboxFeedCounts
+}
+
+export type InboxFeedRow = {
+  label: string
+  fullName: string
+  updatedAt?: string
+  counts: InboxFeedCounts
+  cases: Record<string, InboxFeedCase>
+  error?: string
+}
+
+export async function getInboxFeedLead(query: {
+  domain: string
+  inbox: string
+  lead: string
+}): Promise<InboxFeedLead> {
+  const params = new URLSearchParams({
+    domain: query.domain,
+    inbox: query.inbox,
+    lead: query.lead,
+  })
+  return api(`/inboxFeed/lead?${params.toString()}`)
+}
+
+export async function getInboxFeedSummary(query: {
+  domain: string
+  inbox: string
+}): Promise<InboxFeedSummary> {
+  const params = new URLSearchParams({
+    domain: query.domain,
+    inbox: query.inbox,
+  })
+  return api(`/inboxFeed/summary?${params.toString()}`)
+}
+
+export async function listInboxFeeds(domain: string): Promise<{
+  domain: string
+  inboxes: InboxFeedRow[]
+}> {
+  return api(`/inboxFeeds?domain=${encodeURIComponent(domain)}`)
 }
 
 export async function listCreatedLeads(query: {
@@ -241,5 +321,36 @@ export async function listCreatedLeads(query: {
   const result = await api<{ leads: CreatedLead[] }>(
     `/fetchLeads?${params.toString()}`,
   )
-  return result.leads
+  if (!query.domain) {
+    return result.leads
+  }
+  let feeds: InboxFeedRow[] = []
+  try {
+    const packed = await listInboxFeeds(query.domain)
+    feeds = packed.inboxes || []
+  } catch {
+    feeds = []
+  }
+  const byLead = new Map<string, { inbox: string; status: string; updatedAt: string }>()
+  for (const inbox of feeds) {
+    for (const [lead, row] of Object.entries(inbox.cases || {})) {
+      byLead.set(lead, {
+        inbox: inbox.label,
+        status: row.status,
+        updatedAt: row.updatedAt,
+      })
+    }
+  }
+  return result.leads.map((lead) => {
+    const hit = byLead.get(lead.label)
+    if (!hit) {
+      return { ...lead, swarmInbox: null, swarmUpdatedAt: null }
+    }
+    return {
+      ...lead,
+      status: hit.status || lead.status,
+      swarmInbox: hit.inbox,
+      swarmUpdatedAt: hit.updatedAt,
+    }
+  })
 }

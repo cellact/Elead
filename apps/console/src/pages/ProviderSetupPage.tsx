@@ -42,6 +42,7 @@ const ABI = {
   slc: [
     'function getSecondLevelInteractor() view returns (address)',
     'function setSecondLevelInteractor(address)',
+    'function setText(bytes32 node, string key, string value)',
   ],
   sli: [
     'function makeController(address newController)',
@@ -50,6 +51,9 @@ const ABI = {
     'function setSecondLevelController(address)',
     'function grantRole(bytes32 role, address account)',
     'function hasRole(bytes32 role, address account) view returns (bool)',
+  ],
+  resolver: [
+    'function text(bytes32 node, string key) view returns (string)',
   ],
   registry: ['function owner(bytes32 node) view returns (address)'],
   wrapper: ['function ownerOf(uint256 id) view returns (address)'],
@@ -99,6 +103,41 @@ async function get2ld(wallet: ConsoleWallet): Promise<string> {
     wallet.signer,
   )
   return grc.get2LDControllerFor(wallet.address) as Promise<string>
+}
+
+const SI_TEXT_KEY = 'semaphoreInteractor'
+
+async function readSemaphoreInteractorText(
+  wallet: ConsoleWallet,
+  label: string,
+): Promise<string | null> {
+  const resolverAddr = wallet.config.contracts.PublicResolver
+  if (!resolverAddr) return null
+  const resolver = new Contract(resolverAddr, ABI.resolver, wallet.signer)
+  const raw = (await resolver.text(
+    namehash(`${label}.global`),
+    SI_TEXT_KEY,
+  )) as string
+  const value = String(raw || '').trim()
+  if (!value || value.toLowerCase() === AddressZero.toLowerCase()) {
+    return null
+  }
+  return value
+}
+
+async function publishSemaphoreInteractorText(
+  wallet: ConsoleWallet,
+  label: string,
+  si: string,
+): Promise<void> {
+  const current = await readSemaphoreInteractorText(wallet, label)
+  if (current && current.toLowerCase() === si.toLowerCase()) {
+    return
+  }
+  const slcAddr = await get2ld(wallet)
+  const slc = new Contract(slcAddr, ABI.slc, wallet.signer)
+  const tx = await slc.setText(namehash(`${label}.global`), SI_TEXT_KEY, si)
+  await tx.wait()
 }
 
 async function resolveNameOwner(
@@ -320,7 +359,7 @@ const ONBOARD: {
   {
     id: 'grantSemaphore',
     title: 'Grant CONTROLLER_ROLE',
-    copy: 'Let that SemaphoreInteractor register subnodes on your 2LD.',
+    copy: 'Let that SemaphoreInteractor register subnodes, then write it to ENS text semaphoreInteractor on this 2LD.',
     kind: 'signature',
   },
 ]
@@ -388,15 +427,21 @@ async function inspectCompleted(
     const linked = await fetchLinkedDomain(label)
     if (linked) {
       done.push('linkBackend')
-      if (linked.semaphoreInteractor) {
-        done.push('ensureSemaphore')
-        try {
-          if (await sli.hasRole(role, linked.semaphoreInteractor)) {
-            done.push('grantSemaphore')
-          }
-        } catch {
-          /* */
+    }
+  } catch {
+    /* */
+  }
+
+  try {
+    const siText = await readSemaphoreInteractorText(wallet, label)
+    if (siText) {
+      done.push('ensureSemaphore')
+      try {
+        if (await sli.hasRole(role, siText)) {
+          done.push('grantSemaphore')
         }
+      } catch {
+        /* */
       }
     }
   } catch {
@@ -691,11 +736,13 @@ export function ProviderSetupPage() {
         const interactor = new Contract(interactorAddr, ABI.sli, session.signer)
         const role = id('CONTROLLER_ROLE')
         if (await interactor.hasRole(role, si)) {
+          await publishSemaphoreInteractorText(session, name, si)
           advance('grantSemaphore')
           return
         }
         const grantTx = await interactor.grantRole(role, si)
         await grantTx.wait()
+        await publishSemaphoreInteractorText(session, name, si)
         advance('grantSemaphore')
         return
       }
