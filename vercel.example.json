@@ -2,7 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "npm install",
-  "buildCommand": "npm run build:example",
-  "outputDirectory": "apps/example/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/example", "destination": "/example/index.html" },
+    { "source": "/example/:path*", "destination": "/example/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

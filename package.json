@@ -7,7 +7,7 @@
     "dev": "npm run dev:example",
     "dev:example": "vite --config apps/example/vite.config.ts",
     "dev:console": "vite --config apps/console/vite.config.ts",
-    "build": "tsc -b && vite build --config apps/example/vite.config.ts && vite build --config apps/console/vite.config.ts",
+    "build": "tsc -b && vite build --config apps/console/vite.config.ts && vite build --config apps/example/vite.config.ts",
     "build:example": "tsc -b apps/example && vite build --config apps/example/vite.config.ts",
     "build:console": "tsc -b apps/console && vite build --config apps/console/vite.config.ts",
     "lint": "oxlint",

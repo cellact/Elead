@@ -11,6 +11,10 @@ export default defineConfig({
   publicDir: path.join(repoRoot, 'public'),
   envDir: appDir,
   plugins: [react()],
+  build: {
+    outDir: path.join(repoRoot, 'dist'),
+    emptyOutDir: true,
+  },
   optimizeDeps: {
     include: [
       'ethers',

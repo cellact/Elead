@@ -6,11 +6,16 @@ import { defineConfig } from 'vite'
 const appDir = fileURLToPath(new URL('.', import.meta.url))
 const repoRoot = path.join(appDir, '../..')
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: appDir,
   publicDir: path.join(repoRoot, 'public'),
   envDir: appDir,
+  base: command === 'build' ? '/example/' : '/',
   plugins: [react()],
+  build: {
+    outDir: path.join(repoRoot, 'dist/example'),
+    emptyOutDir: true,
+  },
   optimizeDeps: {
     include: [
       'ethers',
@@ -48,4 +53,4 @@ export default defineConfig({
       '@': path.join(appDir, 'src'),
     },
   },
-})
+}))
